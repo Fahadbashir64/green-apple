@@ -1,0 +1,151 @@
+<section class="page-card checkout-page">
+  @if (isPlacingOrder) {
+    <div class="ga-loading-overlay">
+      <div class="ga-loader-ring"></div>
+      <p>{{ 'checkout.loading' | translate }}</p>
+    </div>
+  }
+  <div class="checkout-header">
+    <h1>{{ 'pages.checkout.title' | translate }}</h1>
+    <p>{{ 'pages.checkout.description' | translate }}</p>
+  </div>
+
+  @if (confirmationMessage) {
+    <p class="confirmation">{{ confirmationMessage }}</p>
+  }
+
+  <div class="checkout-layout">
+    <form [formGroup]="checkoutForm" (ngSubmit)="placeOrder()" class="checkout-form">
+      <section class="block">
+        <h3>{{ 'fulfillment.title' | translate }}</h3>
+        <div class="payment-row">
+          <label class="payment-option" [class.active]="checkoutForm.get('fulfillmentType')?.value === 'delivery'">
+            <input type="radio" value="delivery" formControlName="fulfillmentType" />
+            {{ 'fulfillment.delivery' | translate }}
+          </label>
+          <label class="payment-option" [class.active]="checkoutForm.get('fulfillmentType')?.value === 'pickup'">
+            <input type="radio" value="pickup" formControlName="fulfillmentType" />
+            {{ 'fulfillment.pickup' | translate }}
+          </label>
+        </div>
+
+        @if (checkoutForm.get('fulfillmentType')?.value === 'delivery') {
+          <label class="delivery-area-field">
+            {{ 'fulfillment.deliveryArea' | translate }}
+            <select formControlName="deliveryAreaId">
+              <option [ngValue]="null" disabled>{{ 'fulfillment.deliveryAreaPlaceholder' | translate }}</option>
+              @for (area of deliveryAreas(); track area.id) {
+                <option [ngValue]="area.id">
+                  {{ area.city }} &middot; {{ area.area }} ({{ area.charge | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }})
+                </option>
+              }
+            </select>
+            @if (deliveryAreas().length === 0) {
+              <small class="muted">{{ 'fulfillment.deliveryAreaEmpty' | translate }}</small>
+            }
+          </label>
+        }
+      </section>
+
+      <section class="block">
+        <div class="field-grid">
+          <label>
+            {{ 'forms.name' | translate }}
+            <input type="text" formControlName="name" [placeholder]="'forms.placeholders.name' | translate" />
+          </label>
+
+          <label>
+            {{ 'forms.phone' | translate }}
+            <input type="text" formControlName="phone" [placeholder]="'forms.placeholders.phone' | translate" />
+          </label>
+
+          <label>
+            {{ 'forms.email' | translate }}
+            <input type="email" formControlName="email" [placeholder]="'forms.placeholders.email' | translate" />
+          </label>
+        </div>
+
+        <label>
+          {{ 'forms.address' | translate }}
+          <textarea rows="3" formControlName="address" [placeholder]="'forms.placeholders.address' | translate"></textarea>
+        </label>
+      </section>
+
+      <section class="block">
+        <label>
+          {{ 'forms.instructions' | translate }}
+          <textarea rows="3" formControlName="instructions" [placeholder]="'forms.placeholders.instructions' | translate"></textarea>
+        </label>
+      </section>
+
+      <section class="block">
+        <h3>{{ 'payments.select' | translate }}</h3>
+        <div class="payment-row">
+          <label class="payment-option" [class.active]="checkoutForm.get('paymentMethod')?.value === 'cod'">
+            <input type="radio" value="cod" formControlName="paymentMethod" />
+            {{ 'payments.cod' | translate }}
+          </label>
+          <label class="payment-option" [class.active]="checkoutForm.get('paymentMethod')?.value === 'paypal'">
+            <input type="radio" value="paypal" formControlName="paymentMethod" />
+            {{ 'payments.paypal' | translate }}
+          </label>
+        </div>
+      </section>
+    </form>
+
+    <aside class="cart-summary">
+      <h3>{{ 'pages.checkout.cartTitle' | translate }}</h3>
+
+      <div class="cart-summary-body">
+        @if (cartService.cartItems().length === 0) {
+          <p class="empty-cart">{{ 'pages.cart.empty' | translate }}</p>
+        } @else {
+          <div class="summary-list">
+            @for (line of cartService.cartItems(); track line.item.id + '-' + (line.sizeLabel ?? 'base')) {
+              <article class="summary-item">
+                <img
+                  [src]="line.item.imageUrl"
+                  [alt]="line.item.name"
+                  (error)="useFallbackImage($event)"
+                />
+                <div>
+                  <strong>{{ line.item.name }}</strong>
+                  @if (line.sizeLabel) {
+                    <p>{{ line.sizeLabel }}</p>
+                  }
+                  <p>{{ line.quantity }}x {{ cartService.lineUnitPrice(line) | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</p>
+                </div>
+                <strong>{{ cartService.lineUnitPrice(line) * line.quantity | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
+              </article>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="summary-footer">
+        <div class="checkout-totals">
+          <div class="total-row">
+            <span>{{ 'labels.subtotal' | translate }}</span>
+            <strong>{{ cartService.totalPrice() | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
+          </div>
+          <div class="total-row">
+            <span>{{ 'labels.delivery' | translate }}</span>
+            <strong>{{ cartService.deliveryFee() | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
+          </div>
+          <div class="total-row grand">
+            <span>{{ 'labels.grandTotal' | translate }}</span>
+            <strong>{{ cartService.grandTotal() | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
+          </div>
+        </div>
+        <button type="button" (click)="placeOrder()" [disabled]="isPlacingOrder">
+          @if (isPlacingOrder) {
+            <span class="ga-btn-spinner"></span>
+            {{ 'checkout.loading' | translate }}
+          } @else {
+            {{ 'actions.placeOrder' | translate }}
+          }
+        </button>
+      </div>
+    </aside>
+  </div>
+</section>

@@ -1,0 +1,205 @@
+{
+    "layout":  {
+                   "tagline":  "Alles frische und gute Qualitat",
+                   "searchPlaceholder":  "Suche nach Gerichten...",
+                   "footerNote":  "Green Apple Pizza Doener Burger",
+                   "contact":  "Kontakt",
+                   "privacyPolicy":  "Datenschutz",
+                   "termsAndConditions":  "AGB"
+               },
+    "fulfillment":  {
+                        "title":  "Bestellart",
+                        "delivery":  "Lieferung",
+                        "pickup":  "Abholung",
+                        "deliveryArea":  "Liefergebiet",
+                        "deliveryAreaPlaceholder":  "Liefergebiet waehlen",
+                        "deliveryAreaEmpty":  "Es sind noch keine Liefergebiete eingerichtet."
+                    },
+    "nav":  {
+                "menu":  "Speisekarte",
+                "cart":  "Warenkorb",
+                "checkout":  "Kasse",
+                "adminOrders":  "Admin Bestellungen",
+                "login":  "Anmeldung",
+                "register":  "Registrieren",
+                "myOrders":  "Meine Bestellungen",
+                "logout":  "Abmelden"
+            },
+    "categories":  {
+                       "pizza":  "Pizza",
+                       "calzone":  "Calzone",
+                       "baguette":  "Baguette",
+                       "suppe":  "Suppe",
+                       "doner":  "Doener",
+                       "lahmacun":  "Lahmacun",
+                       "pide":  "Pide",
+                       "kleinigkeiten":  "Kleinigkeiten",
+                       "spezial":  "Spezial & Vegetarisch",
+                       "salad":  "Salat",
+                       "nachtisch":  "Nachtisch",
+                       "sauce":  "Saucen",
+                       "drinks":  "Getraenke"
+                   },
+    "actions":  {
+                    "addToCart":  "In den Warenkorb",
+                    "remove":  "Entfernen",
+                    "proceedCheckout":  "Zur Kasse",
+                    "placeOrder":  "Bestellung abschicken",
+                    "exploreMenu":  "Speisekarte ansehen",
+                    "viewCart":  "Warenkorb ansehen",
+                    "goCheckout":  "Jetzt zur Kasse",
+                    "openCart":  "Warenkorb oeffnen",
+                    "clearCart":  "Warenkorb leeren"
+                },
+    "auth":  {
+                 "fullName":  "Vollstaendiger Name",
+                 "fullNamePlaceholder":  "Geben Sie Ihren vollstaendigen Namen ein",
+                 "email":  "E-Mail",
+                 "emailPlaceholder":  "Geben Sie Ihre E-Mail ein",
+                 "phone":  "Telefonnummer",
+                 "phonePlaceholder":  "Geben Sie Ihre Telefonnummer ein",
+                 "password":  "Passwort",
+                 "passwordPlaceholder":  "Geben Sie Ihr Passwort ein",
+                 "confirmPassword":  "Passwort bestaetigen",
+                 "confirmPasswordPlaceholder":  "Passwort erneut eingeben",
+                 "loginButton":  "Anmelden",
+                 "registerButton":  "Konto erstellen",
+                 "noAccount":  "Noch kein Konto?",
+                 "haveAccount":  "Bereits ein Konto?",
+                 "registerNow":  "Jetzt registrieren",
+                 "loginNow":  "Jetzt anmelden",
+                 "passwordMismatch":  "Die Passwoerter stimmen nicht ueberein.",
+                 "loginSuccess":  "Anmeldung erfolgreich.",
+                 "registerSuccess":  "Konto erfolgreich erstellt.",
+                 "loginFailed":  "Anmeldung fehlgeschlagen. Bitte Zugangsdaten pruefen.",
+                 "registerFailed":  "Registrierung fehlgeschlagen. Bitte andere E-Mail verwenden.",
+                 "loading":  "Anmeldung laeuft..."
+             },
+    "checkout":  {
+                     "loading":  "Bestellung wird aufgegeben..."
+                 },
+    "toast":  {
+                  "addedToCart":  "{{item}} wurde zum Warenkorb hinzugefuegt.",
+                  "addedToCartQty":  "{{qty}}x {{item}} wurden zum Warenkorb hinzugefuegt.",
+                  "removedFromCart":  "{{item}} wurde aus dem Warenkorb entfernt.",
+                  "cartCleared":  "Der Warenkorb wurde geleert.",
+                  "orderPlaced":  "Bestellung erfolgreich aufgegeben.",
+                  "orderFailed":  "Bestellung konnte nicht aufgegeben werden.",
+                  "ordersLoadFailed":  "Bestellungen konnten nicht geladen werden.",
+                  "orderStatusFailed":  "Bestellstatus konnte nicht aktualisiert werden.",
+                  "menuLoadFailed":  "Speisekarte konnte nicht vom Server geladen werden.",
+                  "loginRequired":  "Bitte anmelden, um fortzufahren.",
+                  "cartEmpty":  "Ihr Warenkorb ist leer.",
+                  "completeRequiredFields":  "Bitte fuellen Sie alle Pflichtfelder aus."
+              },
+    "labels":  {
+                   "total":  "Gesamt",
+                   "status":  "Status",
+                   "from":  "ab",
+                   "subtotal":  "Zwischensumme",
+                   "delivery":  "Lieferkosten",
+                   "grandTotal":  "Gesamtsumme"
+               },
+    "badges":  {
+                   "new":  "Neu",
+                   "popular":  "Beliebt",
+                   "spicy":  "Scharf"
+               },
+    "popup":  {
+                  "size":  "Groesse",
+                  "small":  "Klein",
+                  "medium":  "Mittel",
+                  "large":  "Gross",
+                  "xlarge":  "Extra gross",
+                  "required":  "Erforderlich",
+                  "instructions":  "Hinweise",
+                  "instructionsPlaceholder":  "Spezielle Wuensche?"
+              },
+    "forms":  {
+                  "name":  "Name",
+                  "phone":  "Telefonnummer",
+                  "email":  "E-Mail Adresse",
+                  "address":  "Adresse",
+                  "instructions":  "Besondere Hinweise (optional)",
+                  "placeholders":  {
+                                       "name":  "Geben Sie Ihren Namen ein",
+                                       "phone":  "Geben Sie Ihre Telefonnummer ein",
+                                       "email":  "Geben Sie Ihre E-Mail ein",
+                                       "address":  "Lieferadresse eingeben",
+                                       "instructions":  "Kommentare, Allergien oder Lieferhinweise eingeben"
+                                   }
+              },
+    "payments":  {
+                     "cod":  "Barzahlung bei Lieferung",
+                     "paypal":  "PayPal",
+                     "select":  "Zahlungsmethode waehlen"
+                 },
+    "status":  {
+                   "pending":  "Ausstehend",
+                   "preparing":  "In Vorbereitung",
+                   "delivered":  "Geliefert"
+               },
+    "pages":  {
+                  "menu":  {
+                               "title":  "Speisekarte",
+                               "description":  "Waehlen Sie Ihre Lieblingsgerichte und legen Sie diese direkt in den Warenkorb.",
+                               "emptyCategory":  "Fuer diese Kategorie sind aktuell keine Artikel verfuegbar.",
+                               "emptyMenu":  "Es sind noch keine Speisen verfuegbar.",
+                               "sliderPrev":  "Vorherige Produkte anzeigen",
+                               "sliderNext":  "Weitere Produkte anzeigen",
+                               "cardFallbackDescription":  "Leckeres Gericht frisch zubereitet.",
+                               "sidebarTitle":  "Ihr Warenkorb",
+                               "sidebarSubtitle":  "Passen Sie Menge direkt hier an.",
+                               "emptyCart":  "Noch keine Artikel im Warenkorb."
+                           },
+                  "cart":  {
+                               "title":  "Warenkorb",
+                               "description":  "Produkte, Mengen und Gesamtpreis werden hier verwaltet.",
+                               "empty":  "Ihr Warenkorb ist aktuell leer."
+                           },
+                  "checkout":  {
+                                   "title":  "Kasse",
+                                   "description":  "Kundendaten, Bestellubersicht und Zahlungsoptionen folgen hier.",
+                                   "confirmation":  "Ihre Bestellung {{id}} wurde erfolgreich aufgenommen.",
+                                   "cartTitle":  "Ihr Warenkorb"
+                               },
+                  "login":  {
+                                "title":  "Anmeldung",
+                                "description":  "Melden Sie sich an, um Bestellungen zu verfolgen und schneller zu bestellen.",
+                                "note":  "Authentifizierung ist derzeit fuer UI-Tests simuliert."
+                            },
+                  "register":  {
+                                   "title":  "Registrierung",
+                                   "description":  "Erstellen Sie ein Konto, um Daten zu speichern und Bestellungen zu verfolgen.",
+                                   "note":  "Registrierung ist derzeit fuer UI-Tests simuliert."
+                               },
+                  "adminOrders":  {
+                                      "title":  "Bestellverwaltung",
+                                      "description":  "Liste der Bestellungen, Details und Status-Updates.",
+                                      "empty":  "Noch keine Bestellungen vorhanden."
+                                  },
+                  "privacyPolicy":  {
+                                        "title":  "Datenschutz",
+                                        "description":  "Wie wir Ihre Daten erfassen, nutzen und schuetzen.",
+                                        "note":  "Dies ist ein UI Platzhalter. Der rechtliche Text wird mit Backend-Integration und Compliance-Pruefung finalisiert."
+                                    },
+                  "termsAndConditions":  {
+                                             "title":  "Allgemeine Geschaeftsbedingungen",
+                                             "description":  "Regeln und Bedingungen fuer die Nutzung von Green Apple Services.",
+                                             "note":  "Dies ist ein UI Platzhalter. Die finalen rechtlichen Bedingungen werden vor dem Produktivstart ergaenzt."
+                                         },
+                  "myOrders":  {
+                                   "title":  "Meine Bestellungen",
+                                   "description":  "Verfolgen Sie aktive und abgeschlossene Bestellungen.",
+                                   "empty":  "Sie haben noch keine Bestellungen.",
+                                   "pendingTitle":  "Ausstehende Bestellungen",
+                                   "pendingEmpty":  "Keine ausstehenden Bestellungen.",
+                                   "preparingEmpty":  "Keine Bestellungen in Vorbereitung.",
+                                   "completedTitle":  "Abgeschlossene Bestellungen",
+                                  "completedEmpty":  "Noch keine abgeschlossenen Bestellungen.",
+                                  "itemsEmpty":  "Keine Artikeldetails fuer diese Bestellung verfuegbar."
+                               }
+              }
+}
+
+

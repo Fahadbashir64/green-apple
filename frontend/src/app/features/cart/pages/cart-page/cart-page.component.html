@@ -1,0 +1,71 @@
+<section class="page-card cart-page">
+  <h1>{{ 'pages.cart.title' | translate }}</h1>
+
+  @if (cartService.cartItems().length === 0) {
+    <p>{{ 'pages.cart.empty' | translate }}</p>
+    <a routerLink="/menu" class="browse-link">{{ 'actions.exploreMenu' | translate }}</a>
+  } @else {
+    <div class="cart-lines">
+      @for (line of cartService.cartItems(); track line.item.id + '-' + (line.sizeLabel ?? 'base')) {
+        <article class="line">
+          <div>
+            <h3>{{ line.item.name }}</h3>
+            @if (line.sizeLabel) {
+              <small>{{ line.sizeLabel }}</small>
+            }
+            <p>{{ cartService.lineUnitPrice(line) | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</p>
+          </div>
+          <div class="line-actions">
+            <button type="button" (click)="decrement(line.item.id, line.sizeLabel)">-</button>
+            <span>{{ line.quantity }}</span>
+            <button type="button" (click)="increment(line.item.id, line.sizeLabel)">+</button>
+            <button type="button" class="danger" (click)="remove(line.item.id, line.sizeLabel)">{{ 'actions.remove' | translate }}</button>
+          </div>
+        </article>
+      }
+    </div>
+
+    <footer class="cart-summary">
+      <div class="fulfillment-block">
+        <span class="fulfillment-heading">{{ 'fulfillment.title' | translate }}</span>
+        <div class="fulfillment-row">
+          <label class="fulfillment-option" [class.active]="cartService.fulfillmentType() === 'delivery'">
+            <input
+              type="radio"
+              name="cart-fulfillment"
+              value="delivery"
+              [checked]="cartService.fulfillmentType() === 'delivery'"
+              (change)="setFulfillmentType('delivery')"
+            />
+            {{ 'fulfillment.delivery' | translate }}
+          </label>
+          <label class="fulfillment-option" [class.active]="cartService.fulfillmentType() === 'pickup'">
+            <input
+              type="radio"
+              name="cart-fulfillment"
+              value="pickup"
+              [checked]="cartService.fulfillmentType() === 'pickup'"
+              (change)="setFulfillmentType('pickup')"
+            />
+            {{ 'fulfillment.pickup' | translate }}
+          </label>
+        </div>
+      </div>
+      <div class="cart-totals">
+        <div class="total-line">
+          <span>{{ 'labels.subtotal' | translate }}</span>
+          <strong>{{ cartService.totalPrice() | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
+        </div>
+        <div class="total-line">
+          <span>{{ 'labels.delivery' | translate }}</span>
+          <strong>{{ cartService.deliveryFee() | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
+        </div>
+        <div class="total-line grand">
+          <span>{{ 'labels.grandTotal' | translate }}</span>
+          <strong>{{ cartService.grandTotal() | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
+        </div>
+      </div>
+      <a routerLink="/checkout">{{ 'actions.proceedCheckout' | translate }}</a>
+    </footer>
+  }
+</section>

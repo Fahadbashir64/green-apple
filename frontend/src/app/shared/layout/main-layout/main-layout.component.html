@@ -1,0 +1,55 @@
+<div class="app-shell">
+  <header class="topbar">
+    <div class="topbar-row">
+      <div class="brand">
+        <a class="brand-title" routerLink="/menu">Green Apple</a>
+        <small>{{ 'layout.tagline' | translate }}</small>
+      </div>
+
+      <div class="actions">
+        @if (!authService.isLoggedIn()) {
+          <a class="action-link" routerLink="/login" routerLinkActive="active">{{ 'nav.login' | translate }}</a>
+          <a class="action-link" routerLink="/register" routerLinkActive="active">{{ 'nav.register' | translate }}</a>
+        }
+
+        <div class="lang-switch">
+          <button type="button" [class.active]="translationService.currentLanguage === 'de'" (click)="setLanguage('de')">DE</button>
+          <button type="button" [class.active]="translationService.currentLanguage === 'en'" (click)="setLanguage('en')">EN</button>
+        </div>
+
+        @if (authService.isLoggedIn()) {
+          <div class="profile-menu" (click)="$event.stopPropagation()">
+            <button type="button" class="profile-trigger" (click)="toggleProfileMenu()">
+              <span class="profile-avatar">{{ profileDisplayName.charAt(0) }}</span>
+            </button>
+            @if (isProfileOpen) {
+              <div class="profile-dropdown">
+                <p class="profile-name">{{ profileDisplayName }}</p>
+                @if (authService.isAdmin()) {
+                  <a class="dropdown-link" routerLink="/admin/dashboard" (click)="closeProfileMenu()">Dashboard</a>
+                  <a class="dropdown-link" routerLink="/orders" (click)="closeProfileMenu()">Orders</a>
+                } @else {
+                  <a class="dropdown-link" routerLink="/orders" (click)="closeProfileMenu()">{{ 'nav.myOrders' | translate }}</a>
+                }
+                <button type="button" class="dropdown-link logout" (click)="logout()">{{ 'nav.logout' | translate }}</button>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </header>
+
+  <main class="content-wrap">
+    <router-outlet />
+  </main>
+
+  <footer class="footer">
+    <p>{{ 'layout.footerNote' | translate }}</p>
+    <div class="footer-links">
+      <a routerLink="/privacy-policy" routerLinkActive="active">{{ 'layout.privacyPolicy' | translate }}</a>
+      <a routerLink="/terms-and-conditions" routerLinkActive="active">{{ 'layout.termsAndConditions' | translate }}</a>
+    </div>
+    <p>{{ 'layout.contact' | translate }}: 05171 58 777 88</p>
+  </footer>
+</div>

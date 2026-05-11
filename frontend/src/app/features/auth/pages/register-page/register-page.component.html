@@ -1,0 +1,44 @@
+<section class="page-card auth-page">
+  <div class="auth-card">
+    <h1>{{ 'pages.register.title' | translate }}</h1>
+    <p class="description">{{ 'pages.register.description' | translate }}</p>
+
+    <form [formGroup]="registerForm" (ngSubmit)="submit()" class="auth-form">
+      <label>
+        {{ 'auth.fullName' | translate }}
+        <input type="text" formControlName="fullName" [placeholder]="'auth.fullNamePlaceholder' | translate" />
+      </label>
+
+      <label>
+        {{ 'auth.email' | translate }}
+        <input type="email" formControlName="email" [placeholder]="'auth.emailPlaceholder' | translate" />
+      </label>
+
+      <label>
+        {{ 'auth.phone' | translate }}
+        <input type="text" formControlName="phone" [placeholder]="'auth.phonePlaceholder' | translate" />
+      </label>
+
+      <label>
+        {{ 'auth.password' | translate }}
+        <input type="password" formControlName="password" [placeholder]="'auth.passwordPlaceholder' | translate" />
+      </label>
+
+      <label>
+        {{ 'auth.confirmPassword' | translate }}
+        <input
+          type="password"
+          formControlName="confirmPassword"
+          [placeholder]="'auth.confirmPasswordPlaceholder' | translate"
+        />
+      </label>
+
+      <button type="submit">{{ 'auth.registerButton' | translate }}</button>
+    </form>
+
+    <p class="switch-link">
+      {{ 'auth.haveAccount' | translate }}
+      <a routerLink="/login">{{ 'auth.loginNow' | translate }}</a>
+    </p>
+  </div>
+</section>

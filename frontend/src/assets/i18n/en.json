@@ -1,0 +1,205 @@
+{
+    "layout":  {
+                   "tagline":  "Fresh ingredients and great quality",
+                   "searchPlaceholder":  "Search dishes...",
+                   "footerNote":  "Green Apple Pizza Doner Burger",
+                   "contact":  "Contact",
+                   "privacyPolicy":  "Privacy Policy",
+                   "termsAndConditions":  "Terms and Conditions"
+               },
+    "fulfillment":  {
+                        "title":  "Order type",
+                        "delivery":  "Delivery",
+                        "pickup":  "Pickup",
+                        "deliveryArea":  "Delivery area",
+                        "deliveryAreaPlaceholder":  "Select a delivery area",
+                        "deliveryAreaEmpty":  "No delivery areas are configured yet."
+                    },
+    "nav":  {
+                "menu":  "Menu",
+                "cart":  "Cart",
+                "checkout":  "Checkout",
+                "adminOrders":  "Admin Orders",
+                "login":  "Login",
+                "register":  "Register",
+                "myOrders":  "My Orders",
+                "logout":  "Logout"
+            },
+    "categories":  {
+                       "pizza":  "Pizza",
+                       "calzone":  "Calzone",
+                       "baguette":  "Baguette",
+                       "suppe":  "Soup",
+                       "doner":  "Doner",
+                       "lahmacun":  "Lahmacun",
+                       "pide":  "Pide",
+                       "kleinigkeiten":  "Snacks & Burgers",
+                       "spezial":  "Specials & Vegetarian",
+                       "salad":  "Salad",
+                       "nachtisch":  "Desserts",
+                       "sauce":  "Sauces",
+                       "drinks":  "Drinks"
+                   },
+    "actions":  {
+                    "addToCart":  "Add to cart",
+                    "remove":  "Remove",
+                    "proceedCheckout":  "Proceed to checkout",
+                    "placeOrder":  "Place order",
+                    "exploreMenu":  "Explore menu",
+                    "viewCart":  "View cart",
+                    "goCheckout":  "Go to checkout",
+                    "openCart":  "Open cart",
+                    "clearCart":  "Clear cart"
+                },
+    "auth":  {
+                 "fullName":  "Full name",
+                 "fullNamePlaceholder":  "Enter your full name",
+                 "email":  "Email",
+                 "emailPlaceholder":  "Enter your email",
+                 "phone":  "Phone number",
+                 "phonePlaceholder":  "Enter your phone number",
+                 "password":  "Password",
+                 "passwordPlaceholder":  "Enter your password",
+                 "confirmPassword":  "Confirm password",
+                 "confirmPasswordPlaceholder":  "Re-enter your password",
+                 "loginButton":  "Login",
+                 "registerButton":  "Create account",
+                 "noAccount":  "Don\u0027t have an account?",
+                 "haveAccount":  "Already have an account?",
+                 "registerNow":  "Register now",
+                 "loginNow":  "Login now",
+                 "passwordMismatch":  "Passwords do not match.",
+                 "loginSuccess":  "Login successful.",
+                 "registerSuccess":  "Account created successfully.",
+                 "loginFailed":  "Login failed. Please check your credentials.",
+                 "registerFailed":  "Registration failed. Try another email.",
+                 "loading":  "Signing you in..."
+             },
+    "checkout":  {
+                     "loading":  "Placing your order..."
+                 },
+    "toast":  {
+                  "addedToCart":  "{{item}} added to cart.",
+                  "addedToCartQty":  "{{qty}}x {{item}} added to cart.",
+                  "removedFromCart":  "{{item}} removed from cart.",
+                  "cartCleared":  "Cart has been cleared.",
+                  "orderPlaced":  "Order placed successfully.",
+                  "orderFailed":  "Could not place the order.",
+                  "ordersLoadFailed":  "Could not load your orders.",
+                  "orderStatusFailed":  "Could not update order status.",
+                  "menuLoadFailed":  "Could not load menu from server.",
+                  "loginRequired":  "Please login to continue.",
+                  "cartEmpty":  "Your cart is empty.",
+                  "completeRequiredFields":  "Please complete all required fields."
+              },
+    "labels":  {
+                   "total":  "Total",
+                   "status":  "Status",
+                   "from":  "from",
+                   "subtotal":  "Subtotal",
+                   "delivery":  "Delivery charges",
+                   "grandTotal":  "Grand total"
+               },
+    "badges":  {
+                   "new":  "New",
+                   "popular":  "Popular",
+                   "spicy":  "Spicy"
+               },
+    "popup":  {
+                  "size":  "Size",
+                  "small":  "Small",
+                  "medium":  "Medium",
+                  "large":  "Large",
+                  "xlarge":  "X-Large",
+                  "required":  "Required",
+                  "instructions":  "Instructions",
+                  "instructionsPlaceholder":  "Any special requests?"
+              },
+    "forms":  {
+                  "name":  "Name",
+                  "phone":  "Phone number",
+                  "email":  "Email address",
+                  "address":  "Address",
+                  "instructions":  "Special instructions (optional)",
+                  "placeholders":  {
+                                       "name":  "Enter your name",
+                                       "phone":  "Enter your phone number",
+                                       "email":  "Enter your email address",
+                                       "address":  "Enter delivery address",
+                                       "instructions":  "Add comments, allergies, or delivery instructions"
+                                   }
+              },
+    "payments":  {
+                     "cod":  "Cash on delivery",
+                     "paypal":  "PayPal",
+                     "select":  "Select payment method"
+                 },
+    "status":  {
+                   "pending":  "Pending",
+                   "preparing":  "Preparing",
+                   "delivered":  "Delivered"
+               },
+    "pages":  {
+                  "menu":  {
+                               "title":  "Menu",
+                               "description":  "Select your favorite dishes and add them directly to your cart.",
+                               "emptyCategory":  "No items are available in this category right now.",
+                               "emptyMenu":  "No menu items are available yet.",
+                               "sliderPrev":  "Show previous products",
+                               "sliderNext":  "Show more products",
+                               "cardFallbackDescription":  "Delicious item prepared fresh.",
+                               "sidebarTitle":  "Your cart",
+                               "sidebarSubtitle":  "Adjust quantities instantly.",
+                               "emptyCart":  "No items in your cart yet."
+                           },
+                  "cart":  {
+                               "title":  "Cart",
+                               "description":  "Items, quantities, and order total are managed here.",
+                               "empty":  "Your cart is currently empty."
+                           },
+                  "checkout":  {
+                                   "title":  "Checkout",
+                                   "description":  "Customer details, order summary, and payment options.",
+                                   "confirmation":  "Your order {{id}} has been received successfully.",
+                                   "cartTitle":  "Your cart"
+                               },
+                  "login":  {
+                                "title":  "Login",
+                                "description":  "Access your account to track orders and checkout faster.",
+                                "note":  "Authentication is currently mocked for UI flow testing."
+                            },
+                  "register":  {
+                                   "title":  "Register",
+                                   "description":  "Create your account to save details and track orders.",
+                                   "note":  "Registration is currently mocked for UI flow testing."
+                               },
+                  "adminOrders":  {
+                                      "title":  "Order Management",
+                                      "description":  "Orders list, details, and status updates.",
+                                      "empty":  "No orders yet."
+                                  },
+                  "privacyPolicy":  {
+                                        "title":  "Privacy Policy",
+                                        "description":  "How we collect, use, and protect your information.",
+                                        "note":  "This is a UI placeholder. Legal copy will be finalized with backend integration and compliance review."
+                                    },
+                  "termsAndConditions":  {
+                                             "title":  "Terms and Conditions",
+                                             "description":  "Rules and conditions for using Green Apple services.",
+                                             "note":  "This is a UI placeholder. Final legal terms will be added before production launch."
+                                         },
+                  "myOrders":  {
+                                   "title":  "My Orders",
+                                   "description":  "Track your active and completed orders.",
+                                   "empty":  "You do not have any orders yet.",
+                                   "pendingTitle":  "Pending Orders",
+                                   "pendingEmpty":  "No pending orders.",
+                                   "preparingEmpty":  "No preparing orders.",
+                                   "completedTitle":  "Completed Orders",
+                                  "completedEmpty":  "No completed orders yet.",
+                                  "itemsEmpty":  "No item details available for this order."
+                               }
+              }
+}
+
+

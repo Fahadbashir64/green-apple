@@ -1,0 +1,95 @@
+<section class="page-card my-orders-page">
+  <header class="orders-header">
+    <h1>{{ isAdmin() ? 'Orders' : ('pages.myOrders.title' | translate) }}</h1>
+    <p class="description">
+      {{ isAdmin() ? 'Manage all customer orders and update status.' : ('pages.myOrders.description' | translate) }}
+    </p>
+  </header>
+
+  @if (ordersService.orders().length === 0) {
+    <p class="empty-state">{{ 'pages.myOrders.empty' | translate }}</p>
+  } @else {
+    <section class="orders-panel">
+      <div class="orders-tabs">
+        <button type="button" [class.active]="activeTab === 'pending'" (click)="setActiveTab('pending')">
+          {{ 'pages.myOrders.pendingTitle' | translate }} ({{ pendingOrders().length }})
+        </button>
+        @if (isAdmin()) {
+          <button type="button" [class.active]="activeTab === 'preparing'" (click)="setActiveTab('preparing')">
+            {{ 'status.preparing' | translate }} ({{ preparingOrders().length }})
+          </button>
+        }
+        <button type="button" [class.active]="activeTab === 'completed'" (click)="setActiveTab('completed')">
+          {{ 'pages.myOrders.completedTitle' | translate }} ({{ completedOrders().length }})
+        </button>
+      </div>
+
+      @if (visibleOrders().length === 0) {
+        <p class="empty-state">
+          {{ activeEmptyKey() | translate }}
+        </p>
+      } @else {
+        <div class="orders-list">
+          @for (order of visibleOrders(); track order.id) {
+            <article class="order-card" [class.complete]="activeTab === 'completed' || order.status === 'delivered'">
+              <header>
+                <strong>#{{ order.orderNumber || order.id }}</strong>
+                <span>{{ order.createdAt | date: 'short' }}</span>
+              </header>
+              <div class="chips">
+                <span class="chip status">{{ ('status.' + order.status) | translate }}</span>
+                <span class="chip">{{ ('fulfillment.' + order.fulfillmentType) | translate }}</span>
+              </div>
+
+              @if (isAdmin()) {
+                <label class="status-control">
+                  {{ 'labels.status' | translate }}
+                  <select [ngModel]="order.status" (ngModelChange)="updateStatus(order.id, $event)">
+                    @for (status of statuses; track status) {
+                      <option [value]="status">{{ ('status.' + status) | translate }}</option>
+                    }
+                  </select>
+                </label>
+              }
+
+              <div class="order-lines">
+                @if (order.items.length === 0) {
+                  <p class="items-empty">{{ 'pages.myOrders.itemsEmpty' | translate }}</p>
+                } @else {
+                  @for (line of order.items; track $index) {
+                    <div class="order-line">
+                      <span>
+                        {{ line.quantity }}x {{ line.itemName }}
+                        @if (line.sizeLabel) {
+                          <em>({{ line.sizeLabel }})</em>
+                        }
+                      </span>
+                      <strong>{{ line.lineTotal | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
+                    </div>
+                  }
+                }
+              </div>
+
+              @if (order.customer.address) {
+                <p class="order-address">{{ order.customer.address }}</p>
+              }
+
+              <div class="price-summary">
+                <div>
+                  <span>{{ 'labels.subtotal' | translate }}</span>
+                  <strong>{{ (order.subtotal ?? order.total) | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
+                </div>
+                <div>
+                  <span>{{ 'labels.delivery' | translate }}</span>
+                  <strong>{{ (order.deliveryFee ?? 0) | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
+                </div>
+              </div>
+
+              <p class="order-total">{{ order.total | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</p>
+            </article>
+          }
+        </div>
+      }
+    </section>
+  }
+</section>

@@ -1,0 +1,133 @@
+@use '../../../../theme/page-card';
+
+.cart-page {
+  display: grid;
+  gap: 1rem;
+}
+
+.browse-link {
+  justify-self: start;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.42rem 0.8rem;
+  text-decoration: none;
+  background: #19355d;
+  color: #fff;
+}
+
+.cart-lines {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.line {
+  border: 1px solid #dae3eb;
+  border-radius: 0.8rem;
+  padding: 0.85rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.line h3,
+.line p {
+  margin: 0;
+}
+
+.line-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.line-actions button,
+.cart-summary a {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
+  text-decoration: none;
+  cursor: pointer;
+  background: #19355d;
+  color: #fff;
+}
+
+.line-actions .danger {
+  background: #bf2d2d;
+}
+
+.cart-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.85rem;
+  margin-top: 0.5rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid #dae3eb;
+}
+
+.fulfillment-block {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.fulfillment-heading {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+}
+
+.fulfillment-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.fulfillment-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex: 1 1 auto;
+  font-weight: 600;
+  font-size: 0.88rem;
+  border: 1px solid #cfd9e3;
+  background: #fff;
+  border-radius: 0.6rem;
+  padding: 0.4rem 0.55rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.fulfillment-option input[type='radio'] {
+  accent-color: #c62828;
+}
+
+.fulfillment-option.active {
+  border-color: #c62828;
+  background: #fff5f5;
+  box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.1);
+}
+
+.cart-totals {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.cart-totals .total-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #4e5a69;
+}
+
+.cart-totals .total-line.grand {
+  color: #111827;
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+
+.cart-summary a {
+  align-self: flex-start;
+  margin-top: 0.15rem;
+}

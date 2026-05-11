@@ -1,0 +1,59 @@
+<section class="page-card admin-page">
+  <div class="dashboard-head">
+    <div>
+      <h1>Delivery Areas</h1>
+      <p class="head-sub">Manage cities, neighborhoods and delivery charges shown on the checkout page.</p>
+    </div>
+    <a routerLink="/admin/dashboard">Back to Dashboard</a>
+  </div>
+
+  <section class="panel">
+    <h2>Add new area</h2>
+    <div class="delivery-area-form">
+      <input type="text" [(ngModel)]="newArea.city" placeholder="City" />
+      <input type="text" [(ngModel)]="newArea.area" placeholder="Area / neighborhood" />
+      <input type="number" min="0" step="0.5" [(ngModel)]="newArea.charge" placeholder="Charge (EUR)" />
+      <button type="button" [disabled]="savingArea" (click)="addDeliveryArea()">Add area</button>
+    </div>
+    <p class="hint">
+      Adding the same city + area again will update the existing entry instead of creating a duplicate.
+    </p>
+  </section>
+
+  <section class="panel">
+    <h2>Existing areas</h2>
+    @if (deliveryAreas().length === 0) {
+      <p class="muted">No delivery areas configured yet.</p>
+    } @else {
+      <div class="delivery-area-list">
+        @for (area of deliveryAreas(); track area.id) {
+          <article class="delivery-area-row" [class.disabled]="!area.isActive">
+            @if (editingId() === area.id) {
+              <div class="delivery-area-edit">
+                <input type="text" [(ngModel)]="editArea.city" placeholder="City" />
+                <input type="text" [(ngModel)]="editArea.area" placeholder="Area" />
+                <input type="number" min="0" step="0.5" [(ngModel)]="editArea.charge" placeholder="Charge (EUR)" />
+                <div class="delivery-area-actions">
+                  <button type="button" [disabled]="savingEdit" (click)="saveEdit()">Save</button>
+                  <button type="button" class="ghost" (click)="cancelEdit()">Cancel</button>
+                </div>
+              </div>
+            } @else {
+              <div class="delivery-area-copy">
+                <strong>{{ area.city }} &middot; {{ area.area }}</strong>
+                <span>{{ area.charge | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }} @if (!area.isActive) { &middot; <em>disabled</em> }</span>
+              </div>
+              <div class="delivery-area-actions">
+                <button type="button" class="ghost" (click)="startEdit(area)">Edit</button>
+                <button type="button" class="ghost" (click)="toggleActive(area)">
+                  {{ area.isActive ? 'Disable' : 'Enable' }}
+                </button>
+                <button type="button" class="danger" (click)="deleteArea(area)">Delete</button>
+              </div>
+            }
+          </article>
+        }
+      </div>
+    }
+  </section>
+</section>

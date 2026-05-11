@@ -1,0 +1,194 @@
+<section class="page-card admin-page">
+  <div class="dashboard-head">
+    <h1>Admin Dashboard</h1>
+    <div class="dashboard-head-actions">
+      <a routerLink="/admin/delivery-areas">Delivery Areas</a>
+      <a routerLink="/menu">Back to Menu</a>
+    </div>
+  </div>
+
+  <div class="dashboard-layout">
+    <section class="panel">
+      <h2>Order Settings</h2>
+      <div class="category-create">
+        <input type="number" min="0" step="0.5" [(ngModel)]="minOrderPrice" placeholder="Minimum order price (EUR)" />
+        <button type="button" (click)="saveMinOrderPrice()">Save</button>
+      </div>
+
+      <h2>Categories</h2>
+      <div class="category-create">
+        <input type="text" [(ngModel)]="newCategory" placeholder="New category name" />
+        <button type="button" (click)="addCategory()">Add</button>
+      </div>
+      <div class="chips">
+        @for (category of categories(); track category) {
+          <span class="category-chip">
+            {{ category }}
+            <button type="button" class="chip-delete" (click)="deleteCategory(category)" aria-label="Delete category">×</button>
+          </span>
+        }
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Create Menu Item</h2>
+      <div class="form-grid">
+        <input type="text" [(ngModel)]="form.code" placeholder="Code (e.g. pz-funghi)" />
+        <input type="text" [(ngModel)]="form.name" placeholder="Item name" />
+        <select [(ngModel)]="form.category">
+          <option value="" disabled>Select category</option>
+          @for (category of categories(); track category) {
+            <option [value]="category">{{ category }}</option>
+          }
+        </select>
+        <input
+          type="number"
+          min="0"
+          step="0.01"
+          [(ngModel)]="form.price"
+          [placeholder]="isPizzaCat(form.category) ? 'Small price (EUR)' : 'Price (EUR)'"
+        />
+        @if (isPizzaCat(form.category)) {
+          <input type="number" min="0" step="0.01" [(ngModel)]="form.priceMedium" placeholder="Medium price (EUR)" />
+          <input type="number" min="0" step="0.01" [(ngModel)]="form.priceLarge" placeholder="Large price (EUR)" />
+          <input type="number" min="0" step="0.01" [(ngModel)]="form.priceXlarge" placeholder="X-large price (EUR)" />
+        }
+        <input type="file" accept="image/*" (change)="onCreateImageSelected($event)" />
+        <label class="active-toggle">
+          <input type="checkbox" [(ngModel)]="form.isActive" />
+          Active
+        </label>
+        <textarea rows="4" [(ngModel)]="form.description" placeholder="Description"></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="button" [disabled]="saving" (click)="saveItem()">Create Item</button>
+      </div>
+    </section>
+  </div>
+
+  <section class="panel table-panel">
+    <header class="table-head">
+      <h2>Menu Items</h2>
+      <span class="table-count">{{ filteredItems().length }} of {{ items().length }}</span>
+    </header>
+
+    <div class="table-toolbar">
+      <input
+        type="search"
+        class="search-input"
+        placeholder="Search by name, code, category or description"
+        [ngModel]="searchTerm()"
+        (ngModelChange)="onSearchChange($event)"
+      />
+      <select
+        class="filter-select"
+        [ngModel]="filterCategory()"
+        (ngModelChange)="onCategoryFilterChange($event)"
+      >
+        <option value="">All categories</option>
+        @for (category of categories(); track category) {
+          <option [value]="category">{{ category }}</option>
+        }
+      </select>
+      @if (searchTerm() || filterCategory()) {
+        <button type="button" class="ghost" (click)="clearFilters()">Clear</button>
+      }
+      <div class="page-size">
+        <span>Per page</span>
+        <select
+          [ngModel]="pageSize()"
+          (ngModelChange)="setPageSize($event)"
+        >
+          @for (size of pageSizeOptions; track size) {
+            <option [ngValue]="size">{{ size }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    @if (items().length === 0) {
+      <p class="muted">No menu items found.</p>
+    } @else if (filteredItems().length === 0) {
+      <p class="muted">No items match your filters.</p>
+    } @else {
+      <div class="items-table">
+        @for (item of pagedItems(); track item.id) {
+          <article class="item-row" [class.disabled]="!item.isActive">
+            <div class="item-copy">
+              <strong>{{ item.name }}</strong>
+              <span>{{ item.code }} • {{ item.category }} @if (!item.isActive) { • <em>disabled</em> }</span>
+              <small>{{ item.price | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</small>
+            </div>
+            <div class="item-actions">
+              <button type="button" class="ghost" (click)="startEdit(item)">Edit</button>
+              <button type="button" class="ghost" (click)="toggleActive(item)">{{ item.isActive ? 'Disable' : 'Enable' }}</button>
+              <button type="button" class="danger" (click)="deleteItem(item)">Delete</button>
+            </div>
+          </article>
+        }
+      </div>
+
+      <footer class="table-pagination">
+        <span class="muted">Showing {{ pageStart() }}–{{ pageEnd() }} of {{ filteredItems().length }}</span>
+        <div class="page-nav">
+          <button
+            type="button"
+            class="ghost"
+            [disabled]="currentPage() <= 1"
+            (click)="prevPage()"
+            aria-label="Previous page"
+          >‹ Prev</button>
+          <span class="page-indicator">Page {{ currentPage() }} / {{ totalPages() }}</span>
+          <button
+            type="button"
+            class="ghost"
+            [disabled]="currentPage() >= totalPages()"
+            (click)="nextPage()"
+            aria-label="Next page"
+          >Next ›</button>
+        </div>
+      </footer>
+    }
+  </section>
+
+  @if (editingId !== null) {
+    <div class="edit-popup-backdrop" (click)="closeEditPopup()"></div>
+    <section class="edit-popup" (click)="$event.stopPropagation()">
+      <header>
+        <h3>Update Menu Item</h3>
+        <button type="button" class="ghost" (click)="closeEditPopup()">Close</button>
+      </header>
+      <div class="form-grid">
+        <input type="text" [(ngModel)]="form.code" placeholder="Code (e.g. pz-funghi)" />
+        <input type="text" [(ngModel)]="form.name" placeholder="Item name" />
+        <select [(ngModel)]="form.category">
+          <option value="" disabled>Select category</option>
+          @for (category of categories(); track category) {
+            <option [value]="category">{{ category }}</option>
+          }
+        </select>
+        <input
+          type="number"
+          min="0"
+          step="0.01"
+          [(ngModel)]="form.price"
+          [placeholder]="isPizzaCat(form.category) ? 'Small price (EUR)' : 'Price (EUR)'"
+        />
+        @if (isPizzaCat(form.category)) {
+          <input type="number" min="0" step="0.01" [(ngModel)]="form.priceMedium" placeholder="Medium price (EUR)" />
+          <input type="number" min="0" step="0.01" [(ngModel)]="form.priceLarge" placeholder="Large price (EUR)" />
+          <input type="number" min="0" step="0.01" [(ngModel)]="form.priceXlarge" placeholder="X-large price (EUR)" />
+        }
+        <input type="file" accept="image/*" (change)="onEditImageSelected($event)" />
+        <label class="active-toggle">
+          <input type="checkbox" [(ngModel)]="form.isActive" />
+          Active
+        </label>
+        <textarea rows="4" [(ngModel)]="form.description" placeholder="Description"></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="button" [disabled]="saving" (click)="saveItem()">Update Item</button>
+      </div>
+    </section>
+  }
+</section>

@@ -1,0 +1,25 @@
+<section class="page-card auth-page">
+  <div class="auth-card">
+    <h1>{{ 'pages.login.title' | translate }}</h1>
+    <p class="description">{{ 'pages.login.description' | translate }}</p>
+
+    <form [formGroup]="loginForm" (ngSubmit)="submit()" class="auth-form">
+      <label>
+        {{ 'auth.email' | translate }}
+        <input type="email" formControlName="email" [placeholder]="'auth.emailPlaceholder' | translate" />
+      </label>
+
+      <label>
+        {{ 'auth.password' | translate }}
+        <input type="password" formControlName="password" [placeholder]="'auth.passwordPlaceholder' | translate" />
+      </label>
+
+      <button type="submit">{{ 'auth.loginButton' | translate }}</button>
+    </form>
+
+    <p class="switch-link">
+      {{ 'auth.noAccount' | translate }}
+      <a routerLink="/register">{{ 'auth.registerNow' | translate }}</a>
+    </p>
+  </div>
+</section>

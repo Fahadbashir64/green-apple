@@ -1,0 +1,239 @@
+<section class="menu-page">
+  <div class="menu-main">
+    @if (isMenuLoading()) {
+      <div class="menu-container-loader visible">
+        <div class="menu-container-loader-ring"></div>
+      </div>
+    }
+    <div class="menu-main-banner" role="img" [attr.aria-label]="'pages.menu.title' | translate">
+      <img [src]="mainBannerSrc" alt="" (error)="useFallbackImage($event)" />
+      <div class="menu-main-banner-overlay">
+        <h1>{{ 'pages.menu.title' | translate }}</h1>
+        <p>{{ 'pages.menu.description' | translate }}</p>
+      </div>
+    </div>
+
+    <div id="menu-list"></div>
+    @if (menuLoadSettled() && categorySections.length === 0) {
+      <p class="menu-empty-all">{{ 'pages.menu.emptyMenu' | translate }}</p>
+    }
+    @for (section of categorySections; track section.category) {
+      <div class="category-block">
+        <h2 class="category-heading">{{ categoryLabel(section.category) }}</h2>
+
+        <div class="category-slider">
+          <button
+            type="button"
+            class="slider-nav slider-nav--prev"
+            (click)="scrollCategoryRow(viewport, -1)"
+            [attr.aria-label]="'pages.menu.sliderPrev' | translate"
+          >
+            ‹
+          </button>
+          <div
+            class="category-slider-viewport"
+            #viewport
+            role="region"
+            [attr.aria-label]="categoryLabel(section.category)"
+          >
+            <div class="category-slider-track">
+              @for (item of section.items; track item.id) {
+                <article class="menu-card menu-card--slide" (click)="openProductPopup(item.id)">
+                  <button type="button" class="wish-btn" aria-label="wishlist">♡</button>
+                  <img [src]="item.imageUrl" [alt]="item.name" loading="lazy" (error)="useFallbackImage($event)" />
+                  <div class="menu-card-content">
+                    @if (item.badge) {
+                      <span class="badge">{{ ('badges.' + item.badge) | translate }}</span>
+                    }
+                    <h3>{{ item.name || 'Item' }}</h3>
+                    <p>{{ item.description || ('pages.menu.cardFallbackDescription' | translate) }}</p>
+                  <strong>
+                    {{ 'labels.from' | translate }}
+                    {{ cardPrice(item) | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}
+                  </strong>
+                    @if (!authService.isAdmin()) {
+                      <button type="button" (click)="$event.stopPropagation(); addToCart(item.id)">
+                        {{ 'actions.addToCart' | translate }}
+                      </button>
+                    }
+                  </div>
+                </article>
+              }
+            </div>
+          </div>
+          <button
+            type="button"
+            class="slider-nav slider-nav--next"
+            (click)="scrollCategoryRow(viewport, 1)"
+            [attr.aria-label]="'pages.menu.sliderNext' | translate"
+          >
+            ›
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (!authService.isAdmin()) {
+    <button type="button" class="floating-cart-btn" (click)="openCart()">
+      {{ 'actions.openCart' | translate }} ({{ cartService.itemCount() }})
+    </button>
+  }
+
+  @if (!authService.isAdmin()) {
+    @if (isCartOpen) {
+      <button type="button" class="cart-backdrop" aria-label="close cart" (click)="closeCart()"></button>
+    }
+
+    <aside class="cart-sidebar" [class.open]="isCartOpen">
+      <div class="sidebar-card">
+        <div class="sidebar-header">
+          <h3>{{ 'pages.menu.sidebarTitle' | translate }}</h3>
+          @if (cartService.cartItems().length > 0) {
+            <button type="button" class="clear-btn" (click)="clearCart()">{{ 'actions.clearCart' | translate }}</button>
+          }
+          <button type="button" class="close-btn" (click)="closeCart()">×</button>
+        </div>
+
+        @if (cartService.cartItems().length === 0) {
+          <p class="empty-cart">{{ 'pages.menu.emptyCart' | translate }}</p>
+        } @else {
+          <div class="cart-lines">
+              @for (line of cartService.cartItems(); track line.item.id + '-' + (line.sizeLabel ?? 'base')) {
+              <article class="line">
+                <div class="line-top">
+                  <img [src]="line.item.imageUrl" [alt]="line.item.name" (error)="useFallbackImage($event)" />
+                  <div class="line-copy">
+                    <strong>{{ line.item.name }}</strong>
+                    <p>{{ line.item.description }}</p>
+                  </div>
+                  <button type="button" class="line-remove" (click)="remove(line.item.id, line.sizeLabel)">🗑</button>
+                </div>
+                @if (line.sizeLabel) {
+                  <p class="line-size">{{ line.sizeLabel }}</p>
+                }
+
+                <div class="line-bottom">
+                  <div class="qty-controls">
+                    <button type="button" (click)="decrement(line.item.id, line.sizeLabel)">-</button>
+                    <span>{{ line.quantity }}</span>
+                    <button type="button" (click)="increment(line.item.id, line.sizeLabel)">+</button>
+                  </div>
+                  <strong>{{ cartService.lineUnitPrice(line) * line.quantity | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
+                </div>
+              </article>
+            }
+          </div>
+
+          <div class="sidebar-footer">
+            <div class="fulfillment-block">
+              <span class="fulfillment-heading">{{ 'fulfillment.title' | translate }}</span>
+              <div class="fulfillment-row">
+                <label class="fulfillment-option" [class.active]="cartService.fulfillmentType() === 'delivery'">
+                  <input
+                    type="radio"
+                    name="menu-fulfillment"
+                    value="delivery"
+                    [checked]="cartService.fulfillmentType() === 'delivery'"
+                    (change)="setFulfillmentType('delivery')"
+                  />
+                  {{ 'fulfillment.delivery' | translate }}
+                </label>
+                <label class="fulfillment-option" [class.active]="cartService.fulfillmentType() === 'pickup'">
+                  <input
+                    type="radio"
+                    name="menu-fulfillment"
+                    value="pickup"
+                    [checked]="cartService.fulfillmentType() === 'pickup'"
+                    (change)="setFulfillmentType('pickup')"
+                  />
+                  {{ 'fulfillment.pickup' | translate }}
+                </label>
+              </div>
+            </div>
+            <div class="total-row">
+              <span>{{ 'labels.subtotal' | translate }}</span>
+              <strong>{{ cartService.totalPrice() | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
+            </div>
+            <div class="total-row">
+              <span>{{ 'labels.delivery' | translate }}</span>
+              <strong>{{ cartService.deliveryFee() | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
+            </div>
+            <div class="total-row grand">
+              <span>{{ 'labels.grandTotal' | translate }}</span>
+              <strong>{{ cartService.grandTotal() | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
+            </div>
+            <a routerLink="/checkout">{{ 'actions.goCheckout' | translate }}</a>
+          </div>
+        }
+      </div>
+    </aside>
+  }
+
+  @if (selectedItem && !authService.isAdmin()) {
+    <div class="product-popup-backdrop" (click)="closeProductPopup()"></div>
+    <section class="product-popup" (click)="$event.stopPropagation()">
+      <div class="popup-image">
+        <img [src]="selectedItem.imageUrl" [alt]="selectedItem.name" (error)="useFallbackImage($event)" />
+      </div>
+      <div class="popup-content">
+        <button type="button" class="popup-close" (click)="closeProductPopup()">×</button>
+        <h3 class="popup-title">{{ selectedItem.name }}</h3>
+        <strong class="popup-price">
+          @if (isPizza(selectedItem.category)) {
+            {{ popupLinePrice(selectedSize) | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}
+          } @else {
+            {{ selectedItem.price | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}
+          }
+        </strong>
+        <p class="popup-description">{{ selectedItem.description }}</p>
+
+        <div class="popup-body">
+          @if (isPizza(selectedItem.category)) {
+            <div class="popup-block">
+              <h4>{{ 'popup.size' | translate }} <span class="required-tag">{{ 'popup.required' | translate }}</span></h4>
+              <div class="size-list">
+                <label class="size-row">
+                  <span class="size-name">{{ 'popup.small' | translate }}</span>
+                  <span class="size-price">{{ popupLinePrice('small') | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</span>
+                  <input type="radio" name="size" [checked]="selectedSize === 'small'" (change)="setSize('small')" />
+                </label>
+                <label class="size-row">
+                  <span class="size-name">{{ 'popup.medium' | translate }}</span>
+                  <span class="size-price">{{ popupLinePrice('medium') | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</span>
+                  <input type="radio" name="size" [checked]="selectedSize === 'medium'" (change)="setSize('medium')" />
+                </label>
+                <label class="size-row">
+                  <span class="size-name">{{ 'popup.large' | translate }}</span>
+                  <span class="size-price">{{ popupLinePrice('large') | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</span>
+                  <input type="radio" name="size" [checked]="selectedSize === 'large'" (change)="setSize('large')" />
+                </label>
+                <label class="size-row">
+                  <span class="size-name">{{ 'popup.xlarge' | translate }}</span>
+                  <span class="size-price">{{ popupLinePrice('xlarge') | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</span>
+                  <input type="radio" name="size" [checked]="selectedSize === 'xlarge'" (change)="setSize('xlarge')" />
+                </label>
+              </div>
+            </div>
+          }
+
+          <div class="popup-block">
+            <h4>{{ 'popup.instructions' | translate }}</h4>
+            <textarea rows="3" [(ngModel)]="popupInstructions" [placeholder]="'popup.instructionsPlaceholder' | translate"></textarea>
+          </div>
+        </div>
+
+        <div class="popup-footer">
+          <div class="qty-controls popup-qty-controls">
+            <button type="button" (click)="decreasePopupQuantity()">-</button>
+            <span>{{ popupQuantity }}</span>
+            <button type="button" (click)="increasePopupQuantity()">+</button>
+          </div>
+          <button type="button" class="popup-add-btn" (click)="addPopupItemToCart()">
+            {{ getPopupTotal() | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }} · {{ 'actions.addToCart' | translate }}
+          </button>
+        </div>
+      </div>
+    </section>
+  }
+</section>
