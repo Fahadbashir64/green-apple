@@ -8,8 +8,9 @@ import { FulfillmentType } from '../models/fulfillment.model';
 import { CustomerInfo, Order, OrderItemDetail, OrderStatus, PaymentMethod } from '../models/order.model';
 import { AuthService } from './auth.service';
 import { unitPriceForMenuItem } from '../utils/menu-pricing';
+import { environment } from '../../../environments/environment';
 
-const API_BASE_URL = 'http://localhost:4000/api';
+const API_BASE_URL = environment.apiUrl;
 
 @Injectable({
   providedIn: 'root'
@@ -169,7 +170,10 @@ export class OrdersService {
       return;
     }
 
-    this.socket = io('http://localhost:4000', {
+    const socketUrl =
+      environment.socketUrl ||
+      (typeof document !== 'undefined' ? document.location.origin : 'http://localhost:4000');
+    this.socket = io(socketUrl, {
       auth: { token },
       transports: ['websocket']
     });

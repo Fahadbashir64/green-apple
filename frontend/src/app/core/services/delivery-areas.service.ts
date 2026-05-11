@@ -4,8 +4,9 @@ import { Observable, map, tap } from 'rxjs';
 
 import { DeliveryArea } from '../models/delivery-area.model';
 import { AuthService } from './auth.service';
+import { environment } from '../../../environments/environment';
 
-const API_BASE_URL = 'http://localhost:4000/api';
+const API_BASE_URL = environment.apiUrl;
 
 @Injectable({
   providedIn: 'root'

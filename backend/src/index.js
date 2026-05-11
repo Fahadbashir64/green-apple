@@ -7,6 +7,6 @@ const app = createApp();
 const httpServer = createServer(app);
 initSocketServer(httpServer);
 
-httpServer.listen(config.port, () => {
-  console.log(`Backend API running on http://localhost:${config.port}`);
+httpServer.listen(config.port, "0.0.0.0", () => {
+  console.log(`Backend API listening on port ${config.port}`);
 });

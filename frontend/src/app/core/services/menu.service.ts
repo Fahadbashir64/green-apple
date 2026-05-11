@@ -5,8 +5,9 @@ import { catchError, map, Observable, of, tap } from 'rxjs';
 import { MenuCategory, MenuItem } from '../models/menu-item.model';
 import { resolveMediaUrl } from '../utils/media-url';
 import { AuthService } from './auth.service';
+import { environment } from '../../../environments/environment';
 
-const API_BASE_URL = 'http://localhost:4000/api';
+const API_BASE_URL = environment.apiUrl;
 
 /** Not shown as a section on the public menu (admin API still lists it). */
 function isPublicMenuCategorySlug(c: string): boolean {

@@ -2,7 +2,9 @@ import { Injectable, computed, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, Observable, tap } from 'rxjs';
 
-const API_BASE_URL = 'http://localhost:4000/api';
+import { environment } from '../../../environments/environment';
+
+const API_BASE_URL = environment.apiUrl;
 const TOKEN_KEY = 'ga_auth_token';
 const USER_KEY = 'ga_auth_user';
 

@@ -1,5 +1,4 @@
-/** Must match backend static + API host (see MenuService API_BASE_URL). */
-const API_ORIGIN = 'http://localhost:4000';
+import { environment } from '../../../environments/environment';
 
 const PLACEHOLDER = '/assets/images/placeholder-food.svg';
 
@@ -15,8 +14,9 @@ export function resolveMediaUrl(url: string | null | undefined): string {
   if (raw.startsWith('http://') || raw.startsWith('https://')) {
     return raw;
   }
+  const origin = environment.mediaOrigin;
   if (raw.startsWith('/')) {
-    return `${API_ORIGIN}${raw}`;
+    return `${origin}${raw}`;
   }
-  return `${API_ORIGIN}/${raw}`;
+  return `${origin}/${raw}`;
 }
