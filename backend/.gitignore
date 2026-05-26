@@ -16,6 +16,8 @@ pnpm-debug.log*
 # Build / runtime output
 dist/
 build/
+public/*
+!public/.gitkeep
 coverage/
 .cache/
 .tmp/

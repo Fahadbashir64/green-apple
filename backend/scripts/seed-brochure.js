@@ -10,22 +10,10 @@ const __dirname = path.dirname(__filename);
 async function ensureSupportColumns() {
   await pool.query(
     `CREATE TABLE IF NOT EXISTS menu_categories (
-      id SERIAL PRIMARY KEY,
-      name VARCHAR(60) UNIQUE NOT NULL,
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      name VARCHAR(60) NOT NULL UNIQUE,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
     )`
-  );
-  await pool.query(
-    "ALTER TABLE menu_items ADD COLUMN IF NOT EXISTS price_medium NUMERIC(10, 2)"
-  );
-  await pool.query(
-    "ALTER TABLE menu_items ADD COLUMN IF NOT EXISTS price_large NUMERIC(10, 2)"
-  );
-  await pool.query(
-    "ALTER TABLE menu_items ADD COLUMN IF NOT EXISTS price_xlarge NUMERIC(10, 2)"
-  );
-  await pool.query(
-    "ALTER TABLE menu_items ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()"
   );
 }
 
@@ -37,7 +25,7 @@ async function run() {
   await pool.query(sql);
 
   const { rows } = await pool.query(
-    `SELECT COUNT(*)::int AS total
+    `SELECT COUNT(*) AS total
      FROM menu_items
      WHERE code LIKE 'pz-%' OR code LIKE 'cz-%' OR code LIKE 'bg-%'
         OR code LIKE 'su-%' OR code LIKE 'dn-%' OR code LIKE 'lm-%'

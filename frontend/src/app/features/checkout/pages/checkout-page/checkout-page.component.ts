@@ -1,19 +1,32 @@
 import { CurrencyPipe } from '@angular/common';
-import { Component, DestroyRef, OnInit, signal } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  DestroyRef,
+  ElementRef,
+  OnInit,
+  ViewChild,
+  signal
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { finalize } from 'rxjs';
+import { finalize, firstValueFrom } from 'rxjs';
 
 import { DeliveryArea } from '../../../../core/models/delivery-area.model';
 import { FulfillmentType } from '../../../../core/models/fulfillment.model';
-import { PaymentMethod } from '../../../../core/models/order.model';
+import { CustomerInfo, Order, PaymentMethod } from '../../../../core/models/order.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { CartService } from '../../../../core/services/cart.service';
 import { DeliveryAreasService } from '../../../../core/services/delivery-areas.service';
 import { OrdersService } from '../../../../core/services/orders.service';
+import { PaypalService } from '../../../../core/services/paypal.service';
+import { QzTrayService } from '../../../../core/services/qz-tray.service';
 import { ToastService } from '../../../../core/services/toast.service';
+import { PRODUCT_IMAGE_PLACEHOLDER } from '../../../../core/utils/media-url';
+import { environment } from '../../../../../environments/environment';
+import type { PayPalButtonsInstance } from '../../../../../types/paypal-checkout';
 
 @Component({
   selector: 'app-checkout-page',
@@ -21,12 +34,23 @@ import { ToastService } from '../../../../core/services/toast.service';
   templateUrl: './checkout-page.component.html',
   styleUrl: './checkout-page.component.scss'
 })
-export class CheckoutPageComponent implements OnInit {
+export class CheckoutPageComponent implements OnInit, AfterViewInit {
+  @ViewChild('paypalButtonHost') paypalButtonHost?: ElementRef<HTMLElement>;
+
+  readonly showPayPalOption = environment.payments?.showPayPal === true;
+
   readonly checkoutForm;
   readonly deliveryAreas = signal<DeliveryArea[]>([]);
+  readonly paypalEnabled = signal(false);
+  readonly paypalUnavailable = signal(false);
+  readonly isPayPalSelected = signal(false);
 
   confirmationMessage = '';
   isPlacingOrder = false;
+
+  private paypalButtons: PayPalButtonsInstance | null = null;
+  private paypalCurrency = 'EUR';
+  private paypalMountPending = false;
 
   constructor(
     private readonly formBuilder: FormBuilder,
@@ -34,6 +58,8 @@ export class CheckoutPageComponent implements OnInit {
     public readonly cartService: CartService,
     private readonly authService: AuthService,
     private readonly ordersService: OrdersService,
+    private readonly paypalService: PaypalService,
+    private readonly qzTrayService: QzTrayService,
     private readonly deliveryAreasService: DeliveryAreasService,
     private readonly translateService: TranslateService,
     private readonly toastService: ToastService,
@@ -71,6 +97,7 @@ export class CheckoutPageComponent implements OnInit {
           this.cartService.setDeliveryArea(null);
         }
         areaControl.updateValueAndValidity();
+        void this.syncPayPalButtons();
       });
 
     this.checkoutForm
@@ -94,12 +121,52 @@ export class CheckoutPageComponent implements OnInit {
           charge: area.charge
         });
       });
+
+    this.checkoutForm
+      .get('paymentMethod')!
+      .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        const method = (value ?? 'cod') as PaymentMethod;
+        this.isPayPalSelected.set(method === 'paypal');
+        if (method === 'paypal' && !this.paypalEnabled()) {
+          this.checkoutForm.patchValue({ paymentMethod: 'cod' }, { emitEvent: false });
+          this.isPayPalSelected.set(false);
+          this.toastService.error(this.translateService.instant('payments.paypalUnavailable'));
+        } else {
+          void this.syncPayPalButtons();
+        }
+      });
   }
 
   ngOnInit(): void {
     if (this.authService.isAdmin()) {
       this.router.navigateByUrl('/admin/dashboard');
       return;
+    }
+    if (this.authService.isSubAdmin()) {
+      this.router.navigateByUrl('/orders');
+      return;
+    }
+
+    if (this.showPayPalOption) {
+      this.paypalService.getConfig().subscribe({
+        next: (config) => {
+          this.paypalEnabled.set(config.enabled);
+          this.paypalUnavailable.set(!config.enabled);
+          this.paypalCurrency = config.currency || 'EUR';
+          if (config.enabled && config.clientId) {
+            void this.paypalService.loadSdk(config.clientId, this.paypalCurrency).catch(() => {
+              this.paypalEnabled.set(false);
+              this.paypalUnavailable.set(true);
+            });
+          }
+          void this.syncPayPalButtons();
+        },
+        error: () => {
+          this.paypalEnabled.set(false);
+          this.paypalUnavailable.set(true);
+        }
+      });
     }
 
     const currentUser = this.authService.currentUser();
@@ -110,6 +177,8 @@ export class CheckoutPageComponent implements OnInit {
         phone: currentUser.phone || ''
       });
     }
+
+    this.loadDeliveryAreas();
 
     if (!this.authService.isLoggedIn()) {
       return;
@@ -124,7 +193,9 @@ export class CheckoutPageComponent implements OnInit {
         });
       }
     });
+  }
 
+  private loadDeliveryAreas(): void {
     this.deliveryAreasService.loadPublicAreas().subscribe({
       next: (areas) => {
         this.deliveryAreas.set(areas);
@@ -132,8 +203,18 @@ export class CheckoutPageComponent implements OnInit {
         if (storedAreaId != null && !areas.some((a) => a.id === Number(storedAreaId))) {
           this.checkoutForm.get('deliveryAreaId')!.setValue(null);
         }
+      },
+      error: () => {
+        this.deliveryAreas.set([]);
+        this.toastService.error(this.translateService.instant('toast.deliveryAreasLoadFailed'));
       }
     });
+  }
+
+  ngAfterViewInit(): void {
+    if (this.showPayPalOption) {
+      void this.syncPayPalButtons();
+    }
   }
 
   private addressValidators(type: FulfillmentType) {
@@ -147,44 +228,78 @@ export class CheckoutPageComponent implements OnInit {
     return type === 'delivery' ? [Validators.required] : [];
   }
 
-  placeOrder(): void {
-    if (this.authService.isAdmin()) {
-      this.router.navigateByUrl('/admin/dashboard');
-      return;
-    }
+  private buildCustomer(): CustomerInfo | null {
+    const { name, phone, address, email } = this.checkoutForm.getRawValue();
+    return {
+      name: name ?? '',
+      phone: phone ?? '',
+      email: email ?? '',
+      address: (address ?? '').trim()
+    };
+  }
 
-    if (this.isPlacingOrder) {
-      return;
-    }
-
+  private validateCheckout(): boolean {
     if (!this.authService.isLoggedIn()) {
       this.toastService.error(this.translateService.instant('toast.loginRequired'));
       this.router.navigateByUrl('/login');
-      return;
+      return false;
     }
 
     if (this.checkoutForm.invalid || this.cartService.cartItems().length === 0) {
       this.checkoutForm.markAllAsTouched();
       const toastKey = this.cartService.cartItems().length === 0 ? 'toast.cartEmpty' : 'toast.completeRequiredFields';
       this.toastService.error(this.translateService.instant(toastKey));
+      return false;
+    }
+
+    return true;
+  }
+
+  placeOrder(): void {
+    if (this.authService.isAdmin()) {
+      this.router.navigateByUrl('/admin/dashboard');
+      return;
+    }
+    if (this.authService.isSubAdmin()) {
+      this.router.navigateByUrl('/orders');
+      return;
+    }
+    if (this.isPlacingOrder) {
+      return;
+    }
+    if (this.checkoutForm.get('paymentMethod')?.value === 'paypal') {
+      return;
+    }
+    if (!this.validateCheckout()) {
       return;
     }
 
-    const { name, phone, address, paymentMethod, fulfillmentType, deliveryAreaId } = this.checkoutForm.getRawValue();
+    const customer = this.buildCustomer();
+    if (!customer) {
+      return;
+    }
+
+    const { paymentMethod, fulfillmentType, deliveryAreaId } = this.checkoutForm.getRawValue();
+    this.submitOrder(
+      this.ordersService.placeOrder(
+        customer,
+        this.cartService.cartItems(),
+        (paymentMethod ?? 'cod') as PaymentMethod,
+        (fulfillmentType ?? 'delivery') as FulfillmentType,
+        this.cartService.grandTotal(),
+        fulfillmentType === 'delivery' && deliveryAreaId != null ? Number(deliveryAreaId) : null
+      )
+    );
+  }
+
+  private submitOrder(request$: ReturnType<OrdersService['placeOrder']>): void {
     let loaderVisible = false;
     const loaderDelay = setTimeout(() => {
       this.isPlacingOrder = true;
       loaderVisible = true;
     }, 220);
-    this.ordersService
-      .placeOrder(
-      { name: name ?? '', phone: phone ?? '', address: (address ?? '').trim() },
-      this.cartService.cartItems(),
-      (paymentMethod ?? 'cod') as PaymentMethod,
-      (fulfillmentType ?? 'delivery') as FulfillmentType,
-      this.cartService.grandTotal(),
-      fulfillmentType === 'delivery' && deliveryAreaId != null ? Number(deliveryAreaId) : null
-      )
+
+    request$
       .pipe(
         finalize(() => {
           clearTimeout(loaderDelay);
@@ -194,38 +309,138 @@ export class CheckoutPageComponent implements OnInit {
         })
       )
       .subscribe({
-        next: (order) => {
-          this.cartService.clear();
-          this.confirmationMessage = this.translateService.instant('pages.checkout.confirmation', { id: order.id });
-          sessionStorage.setItem('ga_order_placed', '1');
-          this.checkoutForm.reset({
-            name: '',
-            phone: '',
-            email: '',
-            address: '',
-            instructions: '',
-            fulfillmentType: 'delivery',
-            deliveryAreaId: null,
-            paymentMethod: 'cod'
-          });
-          const addressControl = this.checkoutForm.get('address')!;
-          addressControl.setValidators(this.addressValidators('delivery'));
-          addressControl.updateValueAndValidity();
-          const areaControl = this.checkoutForm.get('deliveryAreaId')!;
-          areaControl.setValidators(this.deliveryAreaValidators('delivery'));
-          areaControl.updateValueAndValidity();
-          this.cartService.setDeliveryArea(null);
-          setTimeout(() => this.router.navigateByUrl('/menu'), 900);
-        },
+        next: (order) => this.handleOrderSuccess(order),
         error: (error) => {
           this.isPlacingOrder = false;
           this.toastService.error(error?.error?.message || this.translateService.instant('toast.orderFailed'));
+          void this.syncPayPalButtons();
         }
       });
   }
 
+  private handleOrderSuccess(order: Order): void {
+    if (environment.qzTray?.enabled && environment.qzTray?.autoPrintAfterCheckout) {
+      void this.qzTrayService.printOrderReceipt(order).catch((err: unknown) => {
+        console.warn('[QZ Tray] Checkout print failed', err);
+      });
+    }
+    this.cartService.clear();
+    this.confirmationMessage = this.translateService.instant('pages.checkout.confirmation', { id: order.id });
+    sessionStorage.setItem('ga_order_placed', '1');
+    this.checkoutForm.reset({
+      name: '',
+      phone: '',
+      email: '',
+      address: '',
+      instructions: '',
+      fulfillmentType: 'delivery',
+      deliveryAreaId: null,
+      paymentMethod: 'cod'
+    });
+    this.isPayPalSelected.set(false);
+    const addressControl = this.checkoutForm.get('address')!;
+    addressControl.setValidators(this.addressValidators('delivery'));
+    addressControl.updateValueAndValidity();
+    const areaControl = this.checkoutForm.get('deliveryAreaId')!;
+    areaControl.setValidators(this.deliveryAreaValidators('delivery'));
+    areaControl.updateValueAndValidity();
+    this.cartService.setDeliveryArea(null);
+    this.unmountPayPalButtons();
+    setTimeout(() => this.router.navigateByUrl('/menu'), 900);
+  }
+
+  private async syncPayPalButtons(): Promise<void> {
+    if (!this.showPayPalOption || this.paypalMountPending) {
+      return;
+    }
+    if (!this.isPayPalSelected() || !this.paypalEnabled() || !this.paypalButtonHost?.nativeElement) {
+      this.unmountPayPalButtons();
+      return;
+    }
+
+    this.paypalMountPending = true;
+    try {
+      this.unmountPayPalButtons();
+      const config = await firstValueFrom(this.paypalService.getConfig());
+      if (!config.enabled || !config.clientId) {
+        return;
+      }
+      await this.paypalService.loadSdk(config.clientId, config.currency || this.paypalCurrency);
+      this.paypalButtons = await this.paypalService.renderButtons(this.paypalButtonHost.nativeElement, {
+        createOrder: async () => {
+          if (!this.validateCheckout()) {
+            throw new Error('checkout-invalid');
+          }
+          const customer = this.buildCustomer();
+          if (!customer) {
+            throw new Error('checkout-invalid');
+          }
+          const { fulfillmentType, deliveryAreaId } = this.checkoutForm.getRawValue();
+          const draft = this.ordersService.buildOrderPayload(
+            customer,
+            this.cartService.cartItems(),
+            'paypal',
+            (fulfillmentType ?? 'delivery') as FulfillmentType,
+            fulfillmentType === 'delivery' && deliveryAreaId != null ? Number(deliveryAreaId) : null
+          );
+          return this.paypalService.createOrderId(draft);
+        },
+        onApprove: async (paypalOrderId) => {
+          const customer = this.buildCustomer();
+          if (!customer) {
+            return;
+          }
+          const { fulfillmentType, deliveryAreaId } = this.checkoutForm.getRawValue();
+          this.submitOrder(
+            this.ordersService.capturePayPalOrder(
+              paypalOrderId,
+              customer,
+              this.cartService.cartItems(),
+              (fulfillmentType ?? 'delivery') as FulfillmentType,
+              this.cartService.grandTotal(),
+              fulfillmentType === 'delivery' && deliveryAreaId != null ? Number(deliveryAreaId) : null
+            )
+          );
+        },
+        onCancel: () => {
+          this.toastService.error(this.translateService.instant('payments.paypalCancelled'));
+        },
+        onError: (error) => {
+          if (error instanceof Error && error.message === 'checkout-invalid') {
+            return;
+          }
+          this.toastService.error(this.translateService.instant('payments.paypalFailed'));
+          console.warn('[PayPal]', error);
+        }
+      });
+    } catch (error) {
+      console.warn('[PayPal] Failed to mount buttons', error);
+      this.paypalEnabled.set(false);
+      this.paypalUnavailable.set(true);
+      this.checkoutForm.patchValue({ paymentMethod: 'cod' }, { emitEvent: false });
+      this.isPayPalSelected.set(false);
+    } finally {
+      this.paypalMountPending = false;
+    }
+  }
+
+  private unmountPayPalButtons(): void {
+    if (this.paypalButtons) {
+      try {
+        this.paypalButtons.close();
+      } catch {
+        // ignore teardown errors
+      }
+      this.paypalButtons = null;
+    }
+    this.paypalButtonHost?.nativeElement.replaceChildren();
+  }
+
   useFallbackImage(event: Event): void {
     const image = event.target as HTMLImageElement;
-    image.src = '/assets/images/placeholder-food.svg';
+    if (image.src.includes('placeholder-product.png')) {
+      return;
+    }
+    image.src = PRODUCT_IMAGE_PLACEHOLDER;
   }
 }

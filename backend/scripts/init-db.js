@@ -8,6 +8,19 @@ import { pool } from "../src/db.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+function splitSqlStatements(sql) {
+  return sql
+    .split(";")
+    .map((statement) => statement.trim())
+    .filter((statement) => statement.length > 0);
+}
+
+async function runSqlScript(sql) {
+  for (const statement of splitSqlStatements(sql)) {
+    await pool.query(statement);
+  }
+}
+
 async function run() {
   const schemaPath = path.resolve(__dirname, "../db/schema.sql");
   const seedPath = path.resolve(__dirname, "../db/seed.sql");
@@ -15,8 +28,8 @@ async function run() {
   const schema = await fs.readFile(schemaPath, "utf8");
   const seed = await fs.readFile(seedPath, "utf8");
 
-  await pool.query(schema);
-  await pool.query(seed);
+  await runSqlScript(schema);
+  await runSqlScript(seed);
   await ensureDefaultAdmin();
 
   console.log("Database schema and seed applied.");
@@ -28,7 +41,7 @@ async function ensureDefaultAdmin() {
   await pool.query(
     `INSERT INTO users (full_name, email, phone, password_hash, role)
      VALUES ($1, $2, $3, $4, 'admin')
-     ON CONFLICT (email) DO UPDATE SET role = 'admin'`,
+     ON DUPLICATE KEY UPDATE role = 'admin'`,
     ["Admin User", email, "0000000000", passwordHash]
   );
 }

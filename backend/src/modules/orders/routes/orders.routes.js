@@ -12,12 +12,12 @@ import {
   removeDeliveryArea,
   updateMinOrderPrice
 } from "../controllers/orders.controller.js";
-import { requireAdmin, requireAuth } from "../../../middleware/auth.middleware.js";
+import { requireAdmin, requireAdminOrSubAdmin, requireAuth } from "../../../middleware/auth.middleware.js";
 
 const ordersRouter = Router();
 
 ordersRouter.get("/me", requireAuth, getMyOrders);
-ordersRouter.get("/", requireAuth, requireAdmin, getAllAdminOrders);
+ordersRouter.get("/", requireAuth, requireAdminOrSubAdmin, getAllAdminOrders);
 ordersRouter.get("/settings/min-order-price", requireAuth, requireAdmin, getMinOrderPrice);
 ordersRouter.put("/settings/min-order-price", requireAuth, requireAdmin, updateMinOrderPrice);
 
@@ -30,6 +30,6 @@ ordersRouter.patch("/delivery-areas/:id", requireAuth, requireAdmin, patchDelive
 ordersRouter.delete("/delivery-areas/:id", requireAuth, requireAdmin, removeDeliveryArea);
 
 ordersRouter.post("/", requireAuth, createOrder);
-ordersRouter.patch("/:id/status", requireAuth, requireAdmin, patchOrderStatus);
+ordersRouter.patch("/:id/status", requireAuth, requireAdminOrSubAdmin, patchOrderStatus);
 
 export { ordersRouter };

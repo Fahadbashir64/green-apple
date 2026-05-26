@@ -32,9 +32,17 @@ async function getAllAdminOrders(_req, res) {
 }
 
 async function createOrder(req, res) {
+  const role = req.user?.role;
+  if (role === "admin" || role === "sub_admin") {
+    return res.status(403).json({ message: "Forbidden" });
+  }
+
   const parsed = orderSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ message: "Invalid payload" });
+  }
+  if (parsed.data.paymentMethod === "paypal") {
+    return res.status(400).json({ message: "Use PayPal checkout to pay with PayPal" });
   }
 
   try {

@@ -33,9 +33,22 @@
     <section class="panel">
       <h2>Create Menu Item</h2>
       <div class="form-grid">
-        <input type="text" [(ngModel)]="form.code" placeholder="Code (e.g. pz-funghi)" />
-        <input type="text" [(ngModel)]="form.name" placeholder="Item name" />
-        <select [(ngModel)]="form.category">
+        <input
+          type="text"
+          [ngModel]="createDraft().code"
+          (ngModelChange)="patchCreateDraft({ code: $event })"
+          placeholder="Code (e.g. pz-funghi)"
+        />
+        <input
+          type="text"
+          [ngModel]="createDraft().name"
+          (ngModelChange)="patchCreateDraft({ name: $event })"
+          placeholder="Item name"
+        />
+        <select
+          [ngModel]="createDraft().category"
+          (ngModelChange)="patchCreateDraft({ category: $event })"
+        >
           <option value="" disabled>Select category</option>
           @for (category of categories(); track category) {
             <option [value]="category">{{ category }}</option>
@@ -45,20 +58,51 @@
           type="number"
           min="0"
           step="0.01"
-          [(ngModel)]="form.price"
-          [placeholder]="isPizzaCat(form.category) ? 'Small price (EUR)' : 'Price (EUR)'"
+          [ngModel]="createDraft().price"
+          (ngModelChange)="patchCreateDraft({ price: $event })"
+          [placeholder]="showPizzaPricesCreate() ? 'Small price (EUR)' : 'Price (EUR)'"
         />
-        @if (isPizzaCat(form.category)) {
-          <input type="number" min="0" step="0.01" [(ngModel)]="form.priceMedium" placeholder="Medium price (EUR)" />
-          <input type="number" min="0" step="0.01" [(ngModel)]="form.priceLarge" placeholder="Large price (EUR)" />
-          <input type="number" min="0" step="0.01" [(ngModel)]="form.priceXlarge" placeholder="X-large price (EUR)" />
+        @if (showPizzaPricesCreate()) {
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            [ngModel]="createDraft().priceMedium"
+            (ngModelChange)="patchCreateDraft({ priceMedium: $event })"
+            placeholder="Medium price (EUR)"
+          />
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            [ngModel]="createDraft().priceLarge"
+            (ngModelChange)="patchCreateDraft({ priceLarge: $event })"
+            placeholder="Large price (EUR)"
+          />
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            [ngModel]="createDraft().priceXlarge"
+            (ngModelChange)="patchCreateDraft({ priceXlarge: $event })"
+            placeholder="X-large price (EUR)"
+          />
         }
         <input type="file" accept="image/*" (change)="onCreateImageSelected($event)" />
         <label class="active-toggle">
-          <input type="checkbox" [(ngModel)]="form.isActive" />
+          <input
+            type="checkbox"
+            [ngModel]="createDraft().isActive"
+            (ngModelChange)="patchCreateDraft({ isActive: $event })"
+          />
           Active
         </label>
-        <textarea rows="4" [(ngModel)]="form.description" placeholder="Description"></textarea>
+        <textarea
+          rows="4"
+          [ngModel]="createDraft().description"
+          (ngModelChange)="patchCreateDraft({ description: $event })"
+          placeholder="Description"
+        ></textarea>
       </div>
       <div class="form-actions">
         <button type="button" [disabled]="saving" (click)="saveItem()">Create Item</button>
@@ -95,10 +139,7 @@
       }
       <div class="page-size">
         <span>Per page</span>
-        <select
-          [ngModel]="pageSize()"
-          (ngModelChange)="setPageSize($event)"
-        >
+        <select [ngModel]="pageSize()" (ngModelChange)="setPageSize($event)">
           @for (size of pageSizeOptions; track size) {
             <option [ngValue]="size">{{ size }}</option>
           }
@@ -151,7 +192,7 @@
     }
   </section>
 
-  @if (editingId !== null) {
+  @if (editingId() !== null && editDraft(); as draft) {
     <div class="edit-popup-backdrop" (click)="closeEditPopup()"></div>
     <section class="edit-popup" (click)="$event.stopPropagation()">
       <header>
@@ -159,9 +200,22 @@
         <button type="button" class="ghost" (click)="closeEditPopup()">Close</button>
       </header>
       <div class="form-grid">
-        <input type="text" [(ngModel)]="form.code" placeholder="Code (e.g. pz-funghi)" />
-        <input type="text" [(ngModel)]="form.name" placeholder="Item name" />
-        <select [(ngModel)]="form.category">
+        <input
+          type="text"
+          [ngModel]="draft.code"
+          (ngModelChange)="patchEditDraft({ code: $event })"
+          placeholder="Code (e.g. pz-funghi)"
+        />
+        <input
+          type="text"
+          [ngModel]="draft.name"
+          (ngModelChange)="patchEditDraft({ name: $event })"
+          placeholder="Item name"
+        />
+        <select
+          [ngModel]="draft.category"
+          (ngModelChange)="patchEditDraft({ category: $event })"
+        >
           <option value="" disabled>Select category</option>
           @for (category of categories(); track category) {
             <option [value]="category">{{ category }}</option>
@@ -171,20 +225,51 @@
           type="number"
           min="0"
           step="0.01"
-          [(ngModel)]="form.price"
-          [placeholder]="isPizzaCat(form.category) ? 'Small price (EUR)' : 'Price (EUR)'"
+          [ngModel]="draft.price"
+          (ngModelChange)="patchEditDraft({ price: $event })"
+          [placeholder]="showPizzaPricesEdit() ? 'Small price (EUR)' : 'Price (EUR)'"
         />
-        @if (isPizzaCat(form.category)) {
-          <input type="number" min="0" step="0.01" [(ngModel)]="form.priceMedium" placeholder="Medium price (EUR)" />
-          <input type="number" min="0" step="0.01" [(ngModel)]="form.priceLarge" placeholder="Large price (EUR)" />
-          <input type="number" min="0" step="0.01" [(ngModel)]="form.priceXlarge" placeholder="X-large price (EUR)" />
+        @if (showPizzaPricesEdit()) {
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            [ngModel]="draft.priceMedium"
+            (ngModelChange)="patchEditDraft({ priceMedium: $event })"
+            placeholder="Medium price (EUR)"
+          />
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            [ngModel]="draft.priceLarge"
+            (ngModelChange)="patchEditDraft({ priceLarge: $event })"
+            placeholder="Large price (EUR)"
+          />
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            [ngModel]="draft.priceXlarge"
+            (ngModelChange)="patchEditDraft({ priceXlarge: $event })"
+            placeholder="X-large price (EUR)"
+          />
         }
         <input type="file" accept="image/*" (change)="onEditImageSelected($event)" />
         <label class="active-toggle">
-          <input type="checkbox" [(ngModel)]="form.isActive" />
+          <input
+            type="checkbox"
+            [ngModel]="draft.isActive"
+            (ngModelChange)="patchEditDraft({ isActive: $event })"
+          />
           Active
         </label>
-        <textarea rows="4" [(ngModel)]="form.description" placeholder="Description"></textarea>
+        <textarea
+          rows="4"
+          [ngModel]="draft.description"
+          (ngModelChange)="patchEditDraft({ description: $event })"
+          placeholder="Description"
+        ></textarea>
       </div>
       <div class="form-actions">
         <button type="button" [disabled]="saving" (click)="saveItem()">Update Item</button>

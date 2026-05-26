@@ -1,20 +1,23 @@
-/**
- * Adds created_at to menu_categories and menu_items for category ordering.
- * Run: npm run db:migrate:category-dates
- */
 import "dotenv/config";
 import { pool } from "../src/db.js";
 
-const statements = [
-  "ALTER TABLE menu_categories ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()",
-  "ALTER TABLE menu_items ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()"
-];
+async function addColumnIfMissing(table, column, definition) {
+  const exists = await pool.query(
+    `SELECT COUNT(*) AS cnt
+     FROM information_schema.COLUMNS
+     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = $1 AND COLUMN_NAME = $2`,
+    [table, column]
+  );
+  if (Number(exists.rows[0]?.cnt) > 0) {
+    return;
+  }
+  await pool.query(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+}
 
 async function run() {
-  for (const sql of statements) {
-    await pool.query(sql);
-  }
-  console.log("Category/item created_at columns ensured.");
+  await addColumnIfMissing("menu_categories", "created_at", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP");
+  await addColumnIfMissing("menu_items", "created_at", "TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP");
+  console.log("Category/menu item created_at columns ensured.");
   await pool.end();
 }
 

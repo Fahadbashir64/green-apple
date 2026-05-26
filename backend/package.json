@@ -3,14 +3,23 @@
   "version": "1.0.0",
   "description": "Green Apple backend API",
   "main": "src/index.js",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "nodemon src/index.js",
-    "start": "node src/index.js",
+    "start": "node server.js",
     "db:init": "node scripts/init-db.js",
+    "db:migrate:sub-admin": "node scripts/migrate-sub-admin-role.js",
     "db:migrate:menu-prices": "node scripts/migrate-menu-item-prices.js",
     "db:migrate:category-dates": "node scripts/migrate-category-created-at.js",
     "db:migrate:delivery-areas": "node scripts/migrate-delivery-areas.js",
-    "db:seed:brochure": "node scripts/seed-brochure.js"
+    "db:migrate:clear-asset-images": "node scripts/migrate-clear-asset-image-urls.js",
+    "db:migrate:paypal": "node scripts/migrate-paypal-columns.js",
+    "db:seed:delivery-areas": "node scripts/seed-delivery-areas.js",
+    "db:seed:brochure": "node scripts/seed-brochure.js",
+    "build:web": "node scripts/copy-frontend.js",
+    "build:web:local": "node scripts/copy-frontend.js --local"
   },
   "keywords": [],
   "author": "",
@@ -23,7 +32,7 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.1.1",
-    "pg": "^8.20.0",
+    "mysql2": "^3.22.3",
     "socket.io": "^4.8.3",
     "zod": "^4.4.3"
   },

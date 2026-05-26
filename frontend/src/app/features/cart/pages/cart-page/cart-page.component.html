@@ -26,43 +26,10 @@
     </div>
 
     <footer class="cart-summary">
-      <div class="fulfillment-block">
-        <span class="fulfillment-heading">{{ 'fulfillment.title' | translate }}</span>
-        <div class="fulfillment-row">
-          <label class="fulfillment-option" [class.active]="cartService.fulfillmentType() === 'delivery'">
-            <input
-              type="radio"
-              name="cart-fulfillment"
-              value="delivery"
-              [checked]="cartService.fulfillmentType() === 'delivery'"
-              (change)="setFulfillmentType('delivery')"
-            />
-            {{ 'fulfillment.delivery' | translate }}
-          </label>
-          <label class="fulfillment-option" [class.active]="cartService.fulfillmentType() === 'pickup'">
-            <input
-              type="radio"
-              name="cart-fulfillment"
-              value="pickup"
-              [checked]="cartService.fulfillmentType() === 'pickup'"
-              (change)="setFulfillmentType('pickup')"
-            />
-            {{ 'fulfillment.pickup' | translate }}
-          </label>
-        </div>
-      </div>
       <div class="cart-totals">
-        <div class="total-line">
+        <div class="total-line grand">
           <span>{{ 'labels.subtotal' | translate }}</span>
           <strong>{{ cartService.totalPrice() | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
-        </div>
-        <div class="total-line">
-          <span>{{ 'labels.delivery' | translate }}</span>
-          <strong>{{ cartService.deliveryFee() | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
-        </div>
-        <div class="total-line grand">
-          <span>{{ 'labels.grandTotal' | translate }}</span>
-          <strong>{{ cartService.grandTotal() | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
         </div>
       </div>
       <a routerLink="/checkout">{{ 'actions.proceedCheckout' | translate }}</a>

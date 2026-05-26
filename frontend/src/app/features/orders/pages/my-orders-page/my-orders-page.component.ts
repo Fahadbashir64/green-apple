@@ -39,7 +39,7 @@ export class MyOrdersPageComponent implements OnInit {
   }
 
   pendingOrders(): Order[] {
-    if (this.isAdmin()) {
+    if (this.canManageAllOrders()) {
       return this.ordersService.orders().filter((order) => order.status === 'pending');
     }
     return this.ordersService.orders().filter((order) => order.status !== 'delivered');
@@ -77,12 +77,12 @@ export class MyOrdersPageComponent implements OnInit {
     return 'pages.myOrders.completedEmpty';
   }
 
-  isAdmin(): boolean {
-    return this.authService.isAdmin();
+  canManageAllOrders(): boolean {
+    return this.authService.canManageAllOrders();
   }
 
   updateStatus(orderId: string, status: string): void {
-    if (!this.isAdmin()) {
+    if (!this.canManageAllOrders()) {
       return;
     }
     this.ordersService.updateOrderStatus(orderId, status as OrderStatus).subscribe({

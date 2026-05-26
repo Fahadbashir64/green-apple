@@ -5,8 +5,16 @@ import { initSocketServer } from "./socket.js";
 
 const app = createApp();
 const httpServer = createServer(app);
+
 initSocketServer(httpServer);
 
-httpServer.listen(config.port, "0.0.0.0", () => {
-  console.log(`Backend API listening on port ${config.port}`);
+const PORT = process.env.PORT || config.port || 4000;
+
+httpServer.on("error", (error) => {
+  console.error("HTTP server failed to start:", error);
+  process.exit(1);
+});
+
+httpServer.listen(PORT, () => {
+  console.log(`Backend API listening on port ${PORT}`);
 });

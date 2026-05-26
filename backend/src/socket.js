@@ -6,6 +6,7 @@ let ioInstance = null;
 
 function initSocketServer(httpServer) {
   const io = new Server(httpServer, {
+    path: config.socketPath,
     cors: {
       origin: "*"
     }
@@ -31,7 +32,7 @@ function initSocketServer(httpServer) {
     }
 
     socket.join(`user:${user.userId}`);
-    if (user.role === "admin") {
+    if (user.role === "admin" || user.role === "sub_admin") {
       socket.join("admins");
     }
   });

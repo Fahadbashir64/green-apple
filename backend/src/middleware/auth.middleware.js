@@ -24,4 +24,13 @@ function requireAdmin(req, res, next) {
   return next();
 }
 
-export { requireAdmin, requireAuth };
+/** List/update all orders (admin or sub-admin). */
+function requireAdminOrSubAdmin(req, res, next) {
+  const role = req.user?.role;
+  if (!req.user || (role !== "admin" && role !== "sub_admin")) {
+    return res.status(403).json({ message: "Forbidden" });
+  }
+  return next();
+}
+
+export { requireAdmin, requireAdminOrSubAdmin, requireAuth };

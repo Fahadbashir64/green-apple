@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { Title } from '@angular/platform-browser';
 import { App } from './app';
 
 describe('App', () => {
@@ -14,10 +15,8 @@ describe('App', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should render title', async () => {
-    const fixture = TestBed.createComponent(App);
-    await fixture.whenStable();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, frontend');
+  it('should set the document title', () => {
+    TestBed.createComponent(App);
+    expect(TestBed.inject(Title).getTitle()).toBe('Green Apple');
   });
 });

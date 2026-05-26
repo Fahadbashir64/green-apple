@@ -1,5 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
-import { Component, OnInit, computed, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -24,16 +24,57 @@ interface AdminMenuItem {
   isActive: boolean;
 }
 
+interface MenuItemDraft {
+  code: string;
+  name: string;
+  description: string;
+  category: string;
+  price: number;
+  priceMedium: number | null;
+  priceLarge: number | null;
+  priceXlarge: number | null;
+  imageUrl: string;
+  isActive: boolean;
+}
+
+function emptyDraft(category = ''): MenuItemDraft {
+  return {
+    code: '',
+    name: '',
+    description: '',
+    category,
+    price: 0,
+    priceMedium: null,
+    priceLarge: null,
+    priceXlarge: null,
+    imageUrl: '',
+    isActive: true
+  };
+}
+
+function draftFromItem(item: AdminMenuItem): MenuItemDraft {
+  return {
+    code: item.code,
+    name: item.name,
+    description: item.description,
+    category: item.category,
+    price: Number(item.price),
+    priceMedium: item.priceMedium ?? null,
+    priceLarge: item.priceLarge ?? null,
+    priceXlarge: item.priceXlarge ?? null,
+    imageUrl: item.imageUrl || '',
+    isActive: item.isActive
+  };
+}
+
 @Component({
   selector: 'app-admin-orders-page',
   imports: [CurrencyPipe, FormsModule, RouterLink],
   templateUrl: './admin-orders-page.component.html',
-  styleUrl: './admin-orders-page.component.scss'
+  styleUrl: './admin-orders-page.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AdminOrdersPageComponent implements OnInit {
-  /** Template helper for pizza-only price fields */
-  readonly isPizzaCat = isPizzaCategory;
-
   readonly categories = signal<string[]>([]);
   readonly items = signal<AdminMenuItem[]>([]);
 
@@ -42,6 +83,20 @@ export class AdminOrdersPageComponent implements OnInit {
   readonly pageSize = signal(DEFAULT_PAGE_SIZE);
   readonly currentPage = signal(1);
   readonly pageSizeOptions = PAGE_SIZE_OPTIONS;
+
+  /** Create panel only — never shared with edit popup. */
+  readonly createDraft = signal<MenuItemDraft>(emptyDraft());
+  readonly showPizzaPricesCreate = computed(() =>
+    isPizzaCategory(this.createDraft().category)
+  );
+
+  /** Edit popup only. */
+  readonly editingId = signal<number | null>(null);
+  readonly editDraft = signal<MenuItemDraft | null>(null);
+  readonly showPizzaPricesEdit = computed(() => {
+    const draft = this.editDraft();
+    return draft ? isPizzaCategory(draft.category) : false;
+  });
 
   readonly filteredItems = computed(() => {
     const term = this.searchTerm().trim().toLowerCase();
@@ -90,21 +145,8 @@ export class AdminOrdersPageComponent implements OnInit {
   newCategory = '';
   minOrderPrice = 0;
   saving = false;
-  editingId: number | null = null;
   createImageFile: File | null = null;
   editImageFile: File | null = null;
-  form: Omit<AdminMenuItem, 'id'> = {
-    code: '',
-    name: '',
-    description: '',
-    category: '',
-    price: 0,
-    priceMedium: null,
-    priceLarge: null,
-    priceXlarge: null,
-    imageUrl: '',
-    isActive: true
-  };
 
   constructor(
     private readonly menuService: MenuService,
@@ -124,9 +166,16 @@ export class AdminOrdersPageComponent implements OnInit {
     });
   }
 
+  patchCreateDraft(partial: Partial<MenuItemDraft>): void {
+    this.createDraft.update((draft) => ({ ...draft, ...partial }));
+  }
+
+  patchEditDraft(partial: Partial<MenuItemDraft>): void {
+    this.editDraft.update((draft) => (draft ? { ...draft, ...partial } : draft));
+  }
+
   loadDashboardData(): void {
     this.reloadCategories();
-
     this.menuService.loadAdminItems().subscribe({
       next: (items) => {
         this.items.set(
@@ -148,7 +197,6 @@ export class AdminOrdersPageComponent implements OnInit {
     });
   }
 
-
   addCategory(): void {
     const name = this.newCategory.trim().toLowerCase();
     if (!name) {
@@ -167,119 +215,128 @@ export class AdminOrdersPageComponent implements OnInit {
   deleteCategory(category: string): void {
     this.menuService.deleteCategory(category).subscribe({
       next: () => {
-        this.toastService.info('Category deleted.');
-        if (this.form.category === category) {
-          this.form.category = '';
-        }
         this.loadDashboardData();
+        this.toastService.info('Category deleted.');
       },
       error: () => this.toastService.error('Could not delete category.')
     });
+  }
+
+  private resolveCategory(
+    current: string,
+    categories: string[],
+    preferred?: string
+  ): string {
+    if (preferred && categories.includes(preferred)) {
+      return preferred;
+    }
+    if (current && categories.includes(current)) {
+      return current;
+    }
+    return categories[0] ?? '';
   }
 
   private reloadCategories(preferredCategory?: string): void {
     this.menuService.loadCategories().subscribe({
       next: (categories) => {
         this.categories.set(categories);
-        if (preferredCategory && categories.includes(preferredCategory)) {
-          this.form.category = preferredCategory;
-          return;
-        }
-        if (!this.form.category && categories.length > 0) {
-          this.form.category = categories[0];
+        this.createDraft.update((draft) => ({
+          ...draft,
+          category: this.resolveCategory(draft.category, categories, preferredCategory)
+        }));
+        const edit = this.editDraft();
+        if (edit && this.editingId() !== null) {
+          this.editDraft.set({
+            ...edit,
+            category: this.resolveCategory(edit.category, categories)
+          });
         }
       }
     });
   }
 
+  private resetCreateDraft(): void {
+    const category = this.categories()[0] || '';
+    this.createDraft.set(emptyDraft(category));
+    this.createImageFile = null;
+  }
+
   startEdit(item: AdminMenuItem): void {
-    this.editingId = item.id;
-    this.form = {
-      code: item.code,
-      name: item.name,
-      description: item.description,
-      category: item.category,
-      price: Number(item.price),
-      priceMedium: item.priceMedium ?? null,
-      priceLarge: item.priceLarge ?? null,
-      priceXlarge: item.priceXlarge ?? null,
-      imageUrl: item.imageUrl || '',
-      isActive: item.isActive
-    };
+    this.editingId.set(item.id);
+    this.editDraft.set(draftFromItem(item));
+    this.editImageFile = null;
   }
 
   closeEditPopup(): void {
-    this.resetForm();
-  }
-
-  resetForm(): void {
-    this.editingId = null;
+    this.editingId.set(null);
+    this.editDraft.set(null);
     this.editImageFile = null;
-    this.form = {
-      code: '',
-      name: '',
-      description: '',
-      category: this.categories()[0] || '',
-      price: 0,
-      priceMedium: null,
-      priceLarge: null,
-      priceXlarge: null,
-      imageUrl: '',
-      isActive: true
-    };
   }
 
   saveItem(): void {
-    if (!this.form.code.trim() || !this.form.name.trim() || !this.form.description.trim() || !this.form.category.trim()) {
+    const editingId = this.editingId();
+    const draft = editingId === null ? this.createDraft() : this.editDraft();
+    if (!draft) {
+      return;
+    }
+
+    if (!draft.code.trim() || !draft.name.trim() || !draft.description.trim() || !draft.category.trim()) {
       this.toastService.error('Please complete all required fields.');
       return;
     }
-    const cat = this.form.category.trim().toLowerCase();
+
+    const cat = draft.category.trim().toLowerCase();
     if (isPizzaCategory(cat)) {
-      const pm = Number(this.form.priceMedium);
-      const pl = Number(this.form.priceLarge);
-      const px = Number(this.form.priceXlarge);
+      const pm = Number(draft.priceMedium);
+      const pl = Number(draft.priceLarge);
+      const px = Number(draft.priceXlarge);
       if (!Number.isFinite(pm) || pm < 0 || !Number.isFinite(pl) || pl < 0 || !Number.isFinite(px) || px < 0) {
         this.toastService.error('Pizza items need valid prices for medium, large, and X-large.');
         return;
       }
     }
+
     this.saving = true;
     const pizzaPrices = isPizzaCategory(cat)
       ? {
-          priceMedium: Number(this.form.priceMedium),
-          priceLarge: Number(this.form.priceLarge),
-          priceXlarge: Number(this.form.priceXlarge)
+          priceMedium: Number(draft.priceMedium),
+          priceLarge: Number(draft.priceLarge),
+          priceXlarge: Number(draft.priceXlarge)
         }
       : {};
+
     const request$ =
-      this.editingId === null
+      editingId === null
         ? this.menuService.createMenuItem({
-            code: this.form.code.trim(),
-            name: this.form.name.trim(),
-            description: this.form.description.trim(),
+            code: draft.code.trim(),
+            name: draft.name.trim(),
+            description: draft.description.trim(),
             category: cat,
-            price: Number(this.form.price),
+            price: Number(draft.price),
             ...pizzaPrices,
             imageFile: this.createImageFile
           })
-        : this.menuService.updateMenuItem(this.editingId, {
-            code: this.form.code.trim(),
-            name: this.form.name.trim(),
-            description: this.form.description.trim(),
+        : this.menuService.updateMenuItem(editingId, {
+            code: draft.code.trim(),
+            name: draft.name.trim(),
+            description: draft.description.trim(),
             category: cat,
-            price: Number(this.form.price),
+            price: Number(draft.price),
             ...pizzaPrices,
-            imageUrl: this.form.imageUrl?.trim() || '',
+            imageUrl: draft.imageUrl?.trim() || '',
             imageFile: this.editImageFile,
-            isActive: this.form.isActive
+            isActive: draft.isActive
           });
 
     request$.subscribe({
       next: () => {
-        this.toastService.success(this.editingId === null ? 'Item created.' : 'Item updated.');
-        this.createImageFile = null;
-        this.resetForm();
+        if (editingId === null) {
+          this.resetCreateDraft();
+          this.toastService.success('Item created.');
+        } else {
+          this.closeEditPopup();
+          this.toastService.success('Item updated.');
+        }
         this.loadDashboardData();
       },
       error: () => this.toastService.error('Could not save menu item.'),
@@ -305,8 +362,13 @@ export class AdminOrdersPageComponent implements OnInit {
       })
       .subscribe({
         next: () => {
-          item.isActive = !item.isActive;
-          this.toastService.success(item.isActive ? 'Item activated.' : 'Item disabled.');
+          const nowActive = !item.isActive;
+          this.items.update((list) =>
+            list.map((row) =>
+              row.id === item.id ? { ...row, isActive: nowActive } : row
+            )
+          );
+          this.toastService.success(nowActive ? 'Item activated.' : 'Item disabled.');
         },
         error: () => this.toastService.error('Could not update item status.')
       });
@@ -315,7 +377,7 @@ export class AdminOrdersPageComponent implements OnInit {
   deleteItem(item: AdminMenuItem): void {
     this.menuService.deleteMenuItem(item.id).subscribe({
       next: () => {
-        this.items.set(this.items().filter((entry) => entry.id !== item.id));
+        this.items.update((list) => list.filter((entry) => entry.id !== item.id));
         this.toastService.info('Item deleted.');
       },
       error: () => this.toastService.error('Could not delete item.')
@@ -344,17 +406,14 @@ export class AdminOrdersPageComponent implements OnInit {
     this.currentPage.set(1);
   }
 
-  goToPage(page: number): void {
-    const total = this.totalPages();
-    this.currentPage.set(Math.min(Math.max(1, page), total));
-  }
-
   prevPage(): void {
-    this.goToPage(this.currentPage() - 1);
+    const total = this.totalPages();
+    this.currentPage.set(Math.min(Math.max(1, this.currentPage() - 1), total));
   }
 
   nextPage(): void {
-    this.goToPage(this.currentPage() + 1);
+    const total = this.totalPages();
+    this.currentPage.set(Math.min(this.currentPage() + 1, total));
   }
 
   onCreateImageSelected(event: Event): void {

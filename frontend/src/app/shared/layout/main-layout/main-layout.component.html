@@ -2,7 +2,7 @@
   <header class="topbar">
     <div class="topbar-row">
       <div class="brand">
-        <a class="brand-title" routerLink="/menu">Green Apple</a>
+        <a class="brand-title" [routerLink]="authService.isSubAdmin() ? '/orders' : '/menu'">Green Apple</a>
         <small>{{ 'layout.tagline' | translate }}</small>
       </div>
 
@@ -27,6 +27,8 @@
                 <p class="profile-name">{{ profileDisplayName }}</p>
                 @if (authService.isAdmin()) {
                   <a class="dropdown-link" routerLink="/admin/dashboard" (click)="closeProfileMenu()">Dashboard</a>
+                  <a class="dropdown-link" routerLink="/orders" (click)="closeProfileMenu()">Orders</a>
+                } @else if (authService.isSubAdmin()) {
                   <a class="dropdown-link" routerLink="/orders" (click)="closeProfileMenu()">Orders</a>
                 } @else {
                   <a class="dropdown-link" routerLink="/orders" (click)="closeProfileMenu()">{{ 'nav.myOrders' | translate }}</a>

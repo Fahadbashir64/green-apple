@@ -6,6 +6,7 @@ export type OrderStatus = 'pending' | 'preparing' | 'delivered';
 export interface CustomerInfo {
   name: string;
   phone: string;
+  email?: string;
   address: string;
 }
 

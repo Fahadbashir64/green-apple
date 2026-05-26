@@ -76,7 +76,8 @@
                  "loading":  "Anmeldung laeuft..."
              },
     "checkout":  {
-                     "loading":  "Bestellung wird aufgegeben..."
+                     "loading":  "Bestellung wird aufgegeben...",
+                     "paypalLoading":  "PayPal-Zahlung wird verarbeitet..."
                  },
     "toast":  {
                   "addedToCart":  "{{item}} wurde zum Warenkorb hinzugefuegt.",
@@ -90,7 +91,8 @@
                   "menuLoadFailed":  "Speisekarte konnte nicht vom Server geladen werden.",
                   "loginRequired":  "Bitte anmelden, um fortzufahren.",
                   "cartEmpty":  "Ihr Warenkorb ist leer.",
-                  "completeRequiredFields":  "Bitte fuellen Sie alle Pflichtfelder aus."
+                  "completeRequiredFields":  "Bitte fuellen Sie alle Pflichtfelder aus.",
+                  "deliveryAreasLoadFailed":  "Liefergebiete konnten nicht geladen werden."
               },
     "labels":  {
                    "total":  "Gesamt",
@@ -132,7 +134,11 @@
     "payments":  {
                      "cod":  "Barzahlung bei Lieferung",
                      "paypal":  "PayPal",
-                     "select":  "Zahlungsmethode waehlen"
+                     "select":  "Zahlungsmethode waehlen",
+                     "paypalHint":  "Schliessen Sie die Zahlung unten mit PayPal ab.",
+                     "paypalUnavailable":  "PayPal ist derzeit nicht verfuegbar. Bitte Barzahlung waehlen oder spaeter erneut versuchen.",
+                     "paypalCancelled":  "PayPal-Zahlung wurde abgebrochen.",
+                     "paypalFailed":  "PayPal-Zahlung fehlgeschlagen. Bitte erneut versuchen."
                  },
     "status":  {
                    "pending":  "Ausstehend",

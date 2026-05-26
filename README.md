@@ -3,7 +3,11 @@
 ## Apps
 
 - `frontend` - Angular client
-- `backend` - Node.js + PostgreSQL API
+- `backend` - Node.js + MySQL API
+
+## Deploy on cPanel
+
+See **[docs/DEPLOY-CPANEL.md](docs/DEPLOY-CPANEL.md)** for step-by-step hosting instructions.
 
 ## Quick Start
 
@@ -18,6 +22,6 @@
 - `cd backend`
 - `npm install`
 - copy `.env.example` to `.env`
-- ensure PostgreSQL is running and database exists
+- ensure MySQL is running and database exists
 - `npm run db:init`
 - `npm run dev`

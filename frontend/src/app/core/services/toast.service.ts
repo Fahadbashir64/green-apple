@@ -26,9 +26,12 @@ export class ToastService {
     const id = this.nextId++;
     const type = options.type ?? 'info';
     const durationMs = options.durationMs ?? 2600;
-
     const toast: ToastMessage = { id, text, type };
-    this.toastsSignal.set([...this.toastsSignal(), toast].slice(-4));
+
+    // Defer so callers can finish the current change-detection turn (avoids NG0100).
+    queueMicrotask(() => {
+      this.toastsSignal.update((list) => [...list, toast].slice(-4));
+    });
 
     if (durationMs > 0) {
       setTimeout(() => this.dismiss(id), durationMs);
@@ -48,6 +51,8 @@ export class ToastService {
   }
 
   dismiss(id: number): void {
-    this.toastsSignal.set(this.toastsSignal().filter((toast) => toast.id !== id));
+    queueMicrotask(() => {
+      this.toastsSignal.update((list) => list.filter((toast) => toast.id !== id));
+    });
   }
 }

@@ -5,12 +5,12 @@ import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { switchMap } from 'rxjs';
 
-import { FulfillmentType } from '../../../../core/models/fulfillment.model';
 import { MenuCategory, MenuItem } from '../../../../core/models/menu-item.model';
 import { AuthService } from '../../../../core/services/auth.service';
 import { CartService } from '../../../../core/services/cart.service';
 import { MenuService } from '../../../../core/services/menu.service';
 import { ToastService } from '../../../../core/services/toast.service';
+import { MENU_MAIN_BANNER, PRODUCT_IMAGE_PLACEHOLDER } from '../../../../core/utils/media-url';
 import { PizzaSize, cardFromPrice, isPizzaCategory, unitPriceForMenuItem } from '../../../../core/utils/menu-pricing';
 
 interface CategorySection {
@@ -25,8 +25,7 @@ interface CategorySection {
   styleUrl: './menu-page.component.scss'
 })
 export class MenuPageComponent implements OnInit {
-  /** Single hero image above all category sections */
-  readonly mainBannerSrc = '/assets/images/menu-main-banner.png';
+  readonly mainBannerSrc = MENU_MAIN_BANNER;
 
   categorySections: CategorySection[] = [];
   readonly isMenuLoading = signal(false);
@@ -110,14 +109,14 @@ export class MenuPageComponent implements OnInit {
   }
 
   addToCart(itemId: string): void {
-    if (this.authService.isAdmin()) {
+    if (!this.authService.canShopAsCustomer()) {
       return;
     }
     this.openProductPopup(itemId);
   }
 
   openProductPopup(itemId: string): void {
-    if (this.authService.isAdmin()) {
+    if (!this.authService.canShopAsCustomer()) {
       return;
     }
     const item = this.menuService.getItems().find((menuItem) => menuItem.id === itemId);
@@ -183,9 +182,17 @@ export class MenuPageComponent implements OnInit {
     return unit * this.popupQuantity;
   }
 
+  onBannerImageError(event: Event): void {
+    const image = event.target as HTMLImageElement;
+    image.style.display = 'none';
+  }
+
   useFallbackImage(event: Event): void {
     const image = event.target as HTMLImageElement;
-    image.src = '/assets/images/placeholder-food.svg';
+    if (image.src.includes('placeholder-product.png')) {
+      return;
+    }
+    image.src = PRODUCT_IMAGE_PLACEHOLDER;
   }
 
   increment(itemId: string, sizeLabel?: PizzaSize): void {
@@ -214,12 +221,8 @@ export class MenuPageComponent implements OnInit {
     this.toastService.info(this.translateService.instant('toast.cartCleared'));
   }
 
-  setFulfillmentType(type: FulfillmentType): void {
-    this.cartService.setFulfillmentType(type);
-  }
-
   openCart(): void {
-    if (this.authService.isAdmin()) {
+    if (!this.authService.canShopAsCustomer()) {
       return;
     }
     this.isCartOpen = true;

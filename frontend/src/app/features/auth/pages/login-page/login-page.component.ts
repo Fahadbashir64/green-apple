@@ -42,7 +42,11 @@ export class LoginPageComponent {
       .subscribe({
         next: () => {
           sessionStorage.setItem('ga_post_login_loader', '1');
-          const target = this.authService.isAdmin() ? '/admin/dashboard' : '/menu';
+          const target = this.authService.isAdmin()
+            ? '/admin/dashboard'
+            : this.authService.isSubAdmin()
+              ? '/orders'
+              : '/menu';
           this.router.navigateByUrl(target);
         },
         error: () => {

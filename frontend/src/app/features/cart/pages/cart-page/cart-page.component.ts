@@ -3,7 +3,6 @@ import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
-import { FulfillmentType } from '../../../../core/models/fulfillment.model';
 import { CartService } from '../../../../core/services/cart.service';
 import { ToastService } from '../../../../core/services/toast.service';
 
@@ -38,7 +37,4 @@ export class CartPageComponent {
     }
   }
 
-  setFulfillmentType(type: FulfillmentType): void {
-    this.cartService.setFulfillmentType(type);
-  }
 }

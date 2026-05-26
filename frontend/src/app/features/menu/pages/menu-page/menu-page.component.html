@@ -5,8 +5,8 @@
         <div class="menu-container-loader-ring"></div>
       </div>
     }
-    <div class="menu-main-banner" role="img" [attr.aria-label]="'pages.menu.title' | translate">
-      <img [src]="mainBannerSrc" alt="" (error)="useFallbackImage($event)" />
+    <div class="menu-main-banner">
+      <img [src]="mainBannerSrc" alt="" (error)="onBannerImageError($event)" />
       <div class="menu-main-banner-overlay">
         <h1>{{ 'pages.menu.title' | translate }}</h1>
         <p>{{ 'pages.menu.description' | translate }}</p>
@@ -51,7 +51,7 @@
                     {{ 'labels.from' | translate }}
                     {{ cardPrice(item) | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}
                   </strong>
-                    @if (!authService.isAdmin()) {
+                    @if (authService.canShopAsCustomer()) {
                       <button type="button" (click)="$event.stopPropagation(); addToCart(item.id)">
                         {{ 'actions.addToCart' | translate }}
                       </button>
@@ -74,13 +74,13 @@
     }
   </div>
 
-  @if (!authService.isAdmin()) {
+  @if (authService.canShopAsCustomer()) {
     <button type="button" class="floating-cart-btn" (click)="openCart()">
       {{ 'actions.openCart' | translate }} ({{ cartService.itemCount() }})
     </button>
   }
 
-  @if (!authService.isAdmin()) {
+  @if (authService.canShopAsCustomer()) {
     @if (isCartOpen) {
       <button type="button" class="cart-backdrop" aria-label="close cart" (click)="closeCart()"></button>
     }
@@ -126,42 +126,9 @@
           </div>
 
           <div class="sidebar-footer">
-            <div class="fulfillment-block">
-              <span class="fulfillment-heading">{{ 'fulfillment.title' | translate }}</span>
-              <div class="fulfillment-row">
-                <label class="fulfillment-option" [class.active]="cartService.fulfillmentType() === 'delivery'">
-                  <input
-                    type="radio"
-                    name="menu-fulfillment"
-                    value="delivery"
-                    [checked]="cartService.fulfillmentType() === 'delivery'"
-                    (change)="setFulfillmentType('delivery')"
-                  />
-                  {{ 'fulfillment.delivery' | translate }}
-                </label>
-                <label class="fulfillment-option" [class.active]="cartService.fulfillmentType() === 'pickup'">
-                  <input
-                    type="radio"
-                    name="menu-fulfillment"
-                    value="pickup"
-                    [checked]="cartService.fulfillmentType() === 'pickup'"
-                    (change)="setFulfillmentType('pickup')"
-                  />
-                  {{ 'fulfillment.pickup' | translate }}
-                </label>
-              </div>
-            </div>
-            <div class="total-row">
+            <div class="total-row grand">
               <span>{{ 'labels.subtotal' | translate }}</span>
               <strong>{{ cartService.totalPrice() | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
-            </div>
-            <div class="total-row">
-              <span>{{ 'labels.delivery' | translate }}</span>
-              <strong>{{ cartService.deliveryFee() | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
-            </div>
-            <div class="total-row grand">
-              <span>{{ 'labels.grandTotal' | translate }}</span>
-              <strong>{{ cartService.grandTotal() | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
             </div>
             <a routerLink="/checkout">{{ 'actions.goCheckout' | translate }}</a>
           </div>
@@ -170,7 +137,7 @@
     </aside>
   }
 
-  @if (selectedItem && !authService.isAdmin()) {
+  @if (selectedItem && authService.canShopAsCustomer()) {
     <div class="product-popup-backdrop" (click)="closeProductPopup()"></div>
     <section class="product-popup" (click)="$event.stopPropagation()">
       <div class="popup-image">

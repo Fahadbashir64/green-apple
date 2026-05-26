@@ -76,7 +76,8 @@
                  "loading":  "Signing you in..."
              },
     "checkout":  {
-                     "loading":  "Placing your order..."
+                     "loading":  "Placing your order...",
+                     "paypalLoading":  "Processing PayPal payment..."
                  },
     "toast":  {
                   "addedToCart":  "{{item}} added to cart.",
@@ -90,7 +91,8 @@
                   "menuLoadFailed":  "Could not load menu from server.",
                   "loginRequired":  "Please login to continue.",
                   "cartEmpty":  "Your cart is empty.",
-                  "completeRequiredFields":  "Please complete all required fields."
+                  "completeRequiredFields":  "Please complete all required fields.",
+                  "deliveryAreasLoadFailed":  "Could not load delivery areas."
               },
     "labels":  {
                    "total":  "Total",
@@ -132,7 +134,11 @@
     "payments":  {
                      "cod":  "Cash on delivery",
                      "paypal":  "PayPal",
-                     "select":  "Select payment method"
+                     "select":  "Select payment method",
+                     "paypalHint":  "Complete payment with PayPal below.",
+                     "paypalUnavailable":  "PayPal is not available right now. Choose cash on delivery or try again later.",
+                     "paypalCancelled":  "PayPal payment was cancelled.",
+                     "paypalFailed":  "PayPal payment failed. Please try again."
                  },
     "status":  {
                    "pending":  "Pending",

@@ -1,8 +1,8 @@
 <section class="page-card my-orders-page">
   <header class="orders-header">
-    <h1>{{ isAdmin() ? 'Orders' : ('pages.myOrders.title' | translate) }}</h1>
+    <h1>{{ canManageAllOrders() ? 'Orders' : ('pages.myOrders.title' | translate) }}</h1>
     <p class="description">
-      {{ isAdmin() ? 'Manage all customer orders and update status.' : ('pages.myOrders.description' | translate) }}
+      {{ canManageAllOrders() ? 'Manage all customer orders and update status.' : ('pages.myOrders.description' | translate) }}
     </p>
   </header>
 
@@ -14,7 +14,7 @@
         <button type="button" [class.active]="activeTab === 'pending'" (click)="setActiveTab('pending')">
           {{ 'pages.myOrders.pendingTitle' | translate }} ({{ pendingOrders().length }})
         </button>
-        @if (isAdmin()) {
+        @if (canManageAllOrders()) {
           <button type="button" [class.active]="activeTab === 'preparing'" (click)="setActiveTab('preparing')">
             {{ 'status.preparing' | translate }} ({{ preparingOrders().length }})
           </button>
@@ -41,7 +41,7 @@
                 <span class="chip">{{ ('fulfillment.' + order.fulfillmentType) | translate }}</span>
               </div>
 
-              @if (isAdmin()) {
+              @if (canManageAllOrders()) {
                 <label class="status-control">
                   {{ 'labels.status' | translate }}
                   <select [ngModel]="order.status" (ngModelChange)="updateStatus(order.id, $event)">

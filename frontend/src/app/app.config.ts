@@ -1,10 +1,15 @@
-import { ApplicationConfig, LOCALE_ID, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { APP_INITIALIZER, ApplicationConfig, LOCALE_ID, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import { routes } from './app.routes';
+import { QzOrderPrintListenerService } from './core/services/qz-order-print.listener';
+
+function initQzOrderPrintListener(_listener: QzOrderPrintListenerService) {
+  return () => Promise.resolve();
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -22,6 +27,12 @@ export const appConfig: ApplicationConfig = {
         prefix: '/assets/i18n/',
         suffix: '.json'
       })
-    })
+    }),
+    {
+      provide: APP_INITIALIZER,
+      multi: true,
+      deps: [QzOrderPrintListenerService],
+      useFactory: initQzOrderPrintListener
+    }
   ]
 };

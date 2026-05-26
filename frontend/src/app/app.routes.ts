@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 
 import { authGuard } from './core/guards/auth.guard';
+import { adminOnlyGuard, customerShopGuard } from './core/guards/role.guards';
 import { MainLayoutComponent } from './shared/layout/main-layout/main-layout.component';
 
 export const routes: Routes = [
@@ -15,14 +16,17 @@ export const routes: Routes = [
       },
       {
         path: 'menu',
+        canActivate: [customerShopGuard],
         loadComponent: () => import('./features/menu/pages/menu-page/menu-page.component').then((m) => m.MenuPageComponent)
       },
       {
         path: 'cart',
+        canActivate: [customerShopGuard],
         loadComponent: () => import('./features/cart/pages/cart-page/cart-page.component').then((m) => m.CartPageComponent)
       },
       {
         path: 'checkout',
+        canActivate: [customerShopGuard],
         loadComponent: () => import('./features/checkout/pages/checkout-page/checkout-page.component').then((m) => m.CheckoutPageComponent)
       },
       {
@@ -36,7 +40,7 @@ export const routes: Routes = [
       },
       {
         path: 'admin/dashboard',
-        canActivate: [authGuard],
+        canActivate: [authGuard, adminOnlyGuard],
         loadComponent: () =>
           import('./features/admin-orders/pages/admin-orders-page/admin-orders-page.component').then(
             (m) => m.AdminOrdersPageComponent
@@ -44,7 +48,7 @@ export const routes: Routes = [
       },
       {
         path: 'admin/delivery-areas',
-        canActivate: [authGuard],
+        canActivate: [authGuard, adminOnlyGuard],
         loadComponent: () =>
           import('./features/admin-delivery-areas/pages/admin-delivery-areas-page/admin-delivery-areas-page.component').then(
             (m) => m.AdminDeliveryAreasPageComponent

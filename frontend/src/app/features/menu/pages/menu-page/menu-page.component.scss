@@ -56,11 +56,14 @@
   min-height: min(40vh, 360px);
   max-height: 420px;
   box-shadow: 0 20px 40px rgba(15, 23, 42, 0.18);
+  background: linear-gradient(165deg, #1f7a46 0%, #1a5c8a 45%, #15366b 100%);
   /* Match the cards row width: slider has prev/next nav (2.5rem each) + 0.45rem gap. */
   margin-inline: calc(2.5rem + 0.45rem);
 }
 
 .menu-main-banner img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   min-height: min(40vh, 360px);
@@ -72,6 +75,7 @@
 .menu-main-banner-overlay {
   position: absolute;
   inset: 0;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;

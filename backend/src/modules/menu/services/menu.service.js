@@ -1,8 +1,8 @@
 import { pool } from "../../../db.js";
 
 const MENU_ITEM_SELECT = `id, code, name, description, category, price,
-    price_medium AS "priceMedium", price_large AS "priceLarge", price_xlarge AS "priceXlarge",
-    image_url AS "imageUrl"`;
+    price_medium AS priceMedium, price_large AS priceLarge, price_xlarge AS priceXlarge,
+    image_url AS imageUrl`;
 
 async function getMenuItems() {
   const result = await pool.query(
@@ -13,41 +13,33 @@ async function getMenuItems() {
 
 async function getAdminMenuItems() {
   const result = await pool.query(
-    `SELECT ${MENU_ITEM_SELECT}, is_active AS "isActive" FROM menu_items ORDER BY category, id`
+    `SELECT ${MENU_ITEM_SELECT}, is_active AS isActive FROM menu_items ORDER BY category, id`
   );
   return result.rows;
 }
 
 async function getMenuCategories() {
   const result = await pool.query(`
-    WITH item_cats AS (
-      SELECT LOWER(TRIM(category)) AS cat, MIN(created_at) AS item_ts
+    SELECT category
+    FROM (
+      SELECT LOWER(TRIM(name)) AS category, created_at AS sort_ts
+      FROM menu_categories
+      UNION
+      SELECT LOWER(TRIM(category)) AS category, MIN(created_at) AS sort_ts
       FROM menu_items
       GROUP BY LOWER(TRIM(category))
-    ),
-    table_cats AS (
-      SELECT LOWER(TRIM(name)) AS cat, created_at AS table_ts
-      FROM menu_categories
-    ),
-    all_cats AS (
-      SELECT COALESCE(t.cat, i.cat) AS category,
-        COALESCE(t.table_ts, i.item_ts) AS sort_ts
-      FROM table_cats t
-      FULL OUTER JOIN item_cats i ON t.cat = i.cat
-    )
-    SELECT category
-    FROM all_cats
+    ) AS all_cats
     WHERE category IS NOT NULL AND category != ''
     ORDER BY (category = 'pizza') DESC,
       (category = 'drinks') ASC,
-      sort_ts ASC NULLS LAST,
+      sort_ts ASC,
       category ASC
   `);
   return result.rows.map((row) => row.category);
 }
 
 async function createMenuCategory(name) {
-  await pool.query("INSERT INTO menu_categories (name) VALUES ($1) ON CONFLICT (name) DO NOTHING", [name]);
+  await pool.query("INSERT INTO menu_categories (name) VALUES ($1) ON DUPLICATE KEY UPDATE name = name", [name]);
   return { name };
 }
 
@@ -60,10 +52,10 @@ async function deleteMenuCategory(name) {
   await ensureMenuCategoryTable();
   const client = await pool.connect();
   try {
-    await client.query("BEGIN");
-    await client.query("INSERT INTO menu_categories (name) VALUES ('uncategorized') ON CONFLICT (name) DO NOTHING");
+    await client.query("START TRANSACTION");
+    await client.query("INSERT INTO menu_categories (name) VALUES ('uncategorized') ON DUPLICATE KEY UPDATE name = name");
     const reassigned = await client.query("UPDATE menu_items SET category = 'uncategorized' WHERE category = $1", [target]);
-    const deleted = await client.query("DELETE FROM menu_categories WHERE name = $1 RETURNING id", [target]);
+    const deleted = await client.query("DELETE FROM menu_categories WHERE name = $1", [target]);
     await client.query("COMMIT");
     return { deleted: deleted.rowCount > 0, reassignedCount: reassigned.rowCount };
   } catch (error) {
@@ -74,11 +66,18 @@ async function deleteMenuCategory(name) {
   }
 }
 
-async function createMenuItem(payload) {
+async function getMenuItemById(id) {
   const result = await pool.query(
+    `SELECT ${MENU_ITEM_SELECT}, is_active AS isActive FROM menu_items WHERE id = $1`,
+    [id]
+  );
+  return result.rows[0] || null;
+}
+
+async function createMenuItem(payload) {
+  const insert = await pool.query(
     `INSERT INTO menu_items (code, name, description, category, price, price_medium, price_large, price_xlarge, image_url, is_active)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE)
-     RETURNING ${MENU_ITEM_SELECT}, is_active AS "isActive"`,
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE)`,
     [
       payload.code,
       payload.name,
@@ -91,17 +90,16 @@ async function createMenuItem(payload) {
       payload.imageUrl || null
     ]
   );
-  return result.rows[0];
+  return getMenuItemById(insert.insertId);
 }
 
 async function updateMenuItem(id, payload) {
-  const result = await pool.query(
+  const updated = await pool.query(
     `UPDATE menu_items
      SET code = $1, name = $2, description = $3, category = $4, price = $5,
          price_medium = $6, price_large = $7, price_xlarge = $8,
          image_url = $9, is_active = $10
-     WHERE id = $11
-     RETURNING ${MENU_ITEM_SELECT}, is_active AS "isActive"`,
+     WHERE id = $11`,
     [
       payload.code,
       payload.name,
@@ -116,27 +114,24 @@ async function updateMenuItem(id, payload) {
       id
     ]
   );
-  return result.rows[0] || null;
+  if (updated.rowCount === 0) {
+    return null;
+  }
+  return getMenuItemById(id);
 }
 
 async function deleteMenuItem(id) {
-  const result = await pool.query("DELETE FROM menu_items WHERE id = $1 RETURNING id", [id]);
+  const result = await pool.query("DELETE FROM menu_items WHERE id = $1", [id]);
   return result.rowCount > 0;
 }
 
 async function ensureMenuCategoryTable() {
   await pool.query(
     `CREATE TABLE IF NOT EXISTS menu_categories (
-      id SERIAL PRIMARY KEY,
-      name VARCHAR(60) UNIQUE NOT NULL,
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      name VARCHAR(60) NOT NULL UNIQUE,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
     )`
-  );
-  await pool.query(
-    "ALTER TABLE menu_categories ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()"
-  );
-  await pool.query(
-    "ALTER TABLE menu_items ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()"
   );
 }
 

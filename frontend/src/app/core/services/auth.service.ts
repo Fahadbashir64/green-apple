@@ -13,7 +13,7 @@ interface AuthUser {
   fullName: string;
   email: string;
   phone?: string;
-  role?: 'admin' | 'customer';
+  role?: 'admin' | 'customer' | 'sub_admin';
 }
 
 interface LoginResponse {
@@ -32,6 +32,14 @@ export class AuthService {
   readonly currentUser = this.userSignal.asReadonly();
   readonly isLoggedIn = computed(() => Boolean(this.tokenSignal()));
   readonly isAdmin = computed(() => this.currentUser()?.role === 'admin');
+  readonly isSubAdmin = computed(() => this.currentUser()?.role === 'sub_admin');
+  /** Customers only: browse menu, cart, and checkout (not admin or sub-admin). */
+  readonly canShopAsCustomer = computed(() => {
+    const role = this.currentUser()?.role;
+    return role !== 'admin' && role !== 'sub_admin';
+  });
+  /** Same order-management API and UI as admin (admin or sub-admin). */
+  readonly canManageAllOrders = computed(() => this.isAdmin() || this.isSubAdmin());
 
   constructor(private readonly http: HttpClient) {}
 

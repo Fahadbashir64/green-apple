@@ -36,7 +36,7 @@
               <option [ngValue]="null" disabled>{{ 'fulfillment.deliveryAreaPlaceholder' | translate }}</option>
               @for (area of deliveryAreas(); track area.id) {
                 <option [ngValue]="area.id">
-                  {{ area.city }} &middot; {{ area.area }} ({{ area.charge | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }})
+                  {{ area.city }} &middot; {{ area.area }}
                 </option>
               }
             </select>
@@ -85,11 +85,16 @@
             <input type="radio" value="cod" formControlName="paymentMethod" />
             {{ 'payments.cod' | translate }}
           </label>
-          <label class="payment-option" [class.active]="checkoutForm.get('paymentMethod')?.value === 'paypal'">
-            <input type="radio" value="paypal" formControlName="paymentMethod" />
-            {{ 'payments.paypal' | translate }}
-          </label>
+          @if (showPayPalOption) {
+            <label class="payment-option" [class.active]="checkoutForm.get('paymentMethod')?.value === 'paypal'" [class.disabled]="paypalUnavailable()">
+              <input type="radio" value="paypal" formControlName="paymentMethod" [disabled]="paypalUnavailable()" />
+              {{ 'payments.paypal' | translate }}
+            </label>
+          }
         </div>
+        @if (showPayPalOption && paypalUnavailable()) {
+          <p class="paypal-hint muted">{{ 'payments.paypalUnavailable' | translate }}</p>
+        }
       </section>
     </form>
 
@@ -137,14 +142,19 @@
             <strong>{{ cartService.grandTotal() | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
           </div>
         </div>
-        <button type="button" (click)="placeOrder()" [disabled]="isPlacingOrder">
-          @if (isPlacingOrder) {
-            <span class="ga-btn-spinner"></span>
-            {{ 'checkout.loading' | translate }}
-          } @else {
-            {{ 'actions.placeOrder' | translate }}
-          }
-        </button>
+        @if (showPayPalOption && isPayPalSelected() && paypalEnabled()) {
+          <div #paypalButtonHost class="paypal-button-host"></div>
+          <p class="paypal-hint muted">{{ 'payments.paypalHint' | translate }}</p>
+        } @else {
+          <button type="button" (click)="placeOrder()" [disabled]="isPlacingOrder">
+            @if (isPlacingOrder) {
+              <span class="ga-btn-spinner"></span>
+              {{ 'checkout.loading' | translate }}
+            } @else {
+              {{ 'actions.placeOrder' | translate }}
+            }
+          </button>
+        }
       </div>
     </aside>
   </div>

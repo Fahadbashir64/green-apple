@@ -1,23 +1,23 @@
 import { pool } from "../../../db.js";
 
-const AREA_SELECT = `id, city, area, charge, is_active AS "isActive", created_at AS "createdAt"`;
+const AREA_SELECT = `id, city, area, charge, is_active AS isActive, created_at AS createdAt`;
 
 async function ensureDeliveryAreasTable() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS delivery_areas (
-      id SERIAL PRIMARY KEY,
+      id INT AUTO_INCREMENT PRIMARY KEY,
       city VARCHAR(80) NOT NULL,
       area VARCHAR(120) NOT NULL,
-      charge NUMERIC(10, 2) NOT NULL CHECK (charge >= 0),
-      is_active BOOLEAN NOT NULL DEFAULT TRUE,
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      UNIQUE (city, area)
+      charge DECIMAL(10, 2) NOT NULL CHECK (charge >= 0),
+      is_active TINYINT(1) NOT NULL DEFAULT 1,
+      created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE KEY uq_delivery_areas_city_area (city, area)
     )
   `);
 }
 
 async function listDeliveryAreas({ activeOnly = false } = {}) {
-  const where = activeOnly ? "WHERE is_active = TRUE" : "";
+  const where = activeOnly ? "WHERE is_active = 1" : "";
   const result = await pool.query(
     `SELECT ${AREA_SELECT} FROM delivery_areas ${where} ORDER BY city ASC, area ASC`
   );
@@ -40,16 +40,22 @@ async function getDeliveryAreaById(id) {
 }
 
 async function createDeliveryArea({ city, area, charge, isActive = true }) {
-  const result = await pool.query(
+  await pool.query(
     `INSERT INTO delivery_areas (city, area, charge, is_active)
      VALUES ($1, $2, $3, $4)
-     ON CONFLICT (city, area) DO UPDATE
-       SET charge = EXCLUDED.charge,
-           is_active = EXCLUDED.is_active
-     RETURNING ${AREA_SELECT}`,
+     ON DUPLICATE KEY UPDATE
+       charge = VALUES(charge),
+       is_active = VALUES(is_active)`,
     [city, area, charge, isActive]
   );
+  const result = await pool.query(
+    `SELECT ${AREA_SELECT} FROM delivery_areas WHERE city = $1 AND area = $2`,
+    [city, area]
+  );
   const row = result.rows[0];
+  if (!row) {
+    return null;
+  }
   return { ...row, charge: Number(row.charge) || 0 };
 }
 
@@ -78,18 +84,17 @@ async function updateDeliveryArea(id, patch) {
   }
   values.push(id);
   const result = await pool.query(
-    `UPDATE delivery_areas SET ${fields.join(", ")} WHERE id = $${idx} RETURNING ${AREA_SELECT}`,
+    `UPDATE delivery_areas SET ${fields.join(", ")} WHERE id = $${idx}`,
     values
   );
-  const row = result.rows[0];
-  if (!row) {
+  if (result.rowCount === 0) {
     return null;
   }
-  return { ...row, charge: Number(row.charge) || 0 };
+  return getDeliveryAreaById(id);
 }
 
 async function deleteDeliveryArea(id) {
-  const result = await pool.query("DELETE FROM delivery_areas WHERE id = $1 RETURNING id", [id]);
+  const result = await pool.query("DELETE FROM delivery_areas WHERE id = $1", [id]);
   return result.rowCount > 0;
 }
 
