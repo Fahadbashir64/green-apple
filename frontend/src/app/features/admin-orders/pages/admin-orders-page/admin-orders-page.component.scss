@@ -21,7 +21,7 @@
 .dashboard-head a {
   text-decoration: none;
   color: #fff;
-  background: linear-gradient(135deg, #c62828, #8e1f1f);
+  background: var(--ga-gradient-cta);
   padding: 0.5rem 0.8rem;
   border-radius: 0.6rem;
 }
@@ -42,7 +42,7 @@
 .dashboard-head-actions a {
   text-decoration: none;
   color: #fff;
-  background: linear-gradient(135deg, #c62828, #8e1f1f);
+  background: var(--ga-gradient-cta);
   padding: 0.5rem 0.8rem;
   border-radius: 0.6rem;
   white-space: nowrap;
@@ -138,6 +138,12 @@ textarea {
   font-weight: 600;
 }
 
+.bestseller-tag {
+  color: var(--ga-green-dark);
+  font-weight: 700;
+  font-style: normal;
+}
+
 .form-actions,
 .item-actions {
   display: flex;
@@ -153,7 +159,7 @@ button {
   border-radius: 0.6rem;
   padding: 0.48rem 0.75rem;
   color: #fff;
-  background: linear-gradient(135deg, #c62828, #8e1f1f);
+  background: var(--ga-gradient-cta);
   cursor: pointer;
   font-weight: 700;
 }

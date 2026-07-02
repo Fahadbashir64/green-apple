@@ -1,21 +1,27 @@
 import { pool } from "../../../db.js";
+import { resolveMenuItemAllergens } from "../../../../data/menu-allergens.js";
 
 const MENU_ITEM_SELECT = `id, code, name, description, category, price,
     price_medium AS priceMedium, price_large AS priceLarge, price_xlarge AS priceXlarge,
-    image_url AS imageUrl`;
+    image_url AS imageUrl, is_bestseller AS isBestseller, allergens`;
+
+function withResolvedAllergens(row) {
+  return { ...row, allergens: resolveMenuItemAllergens(row) };
+}
 
 async function getMenuItems() {
   const result = await pool.query(
-    `SELECT ${MENU_ITEM_SELECT} FROM menu_items WHERE is_active = TRUE ORDER BY id`
+    `SELECT ${MENU_ITEM_SELECT} FROM menu_items WHERE is_active = TRUE
+     ORDER BY is_bestseller DESC, id`
   );
-  return result.rows;
+  return result.rows.map(withResolvedAllergens);
 }
 
 async function getAdminMenuItems() {
   const result = await pool.query(
     `SELECT ${MENU_ITEM_SELECT}, is_active AS isActive FROM menu_items ORDER BY category, id`
   );
-  return result.rows;
+  return result.rows.map(withResolvedAllergens);
 }
 
 async function getMenuCategories() {
@@ -71,13 +77,13 @@ async function getMenuItemById(id) {
     `SELECT ${MENU_ITEM_SELECT}, is_active AS isActive FROM menu_items WHERE id = $1`,
     [id]
   );
-  return result.rows[0] || null;
+  return result.rows[0] ? withResolvedAllergens(result.rows[0]) : null;
 }
 
 async function createMenuItem(payload) {
   const insert = await pool.query(
-    `INSERT INTO menu_items (code, name, description, category, price, price_medium, price_large, price_xlarge, image_url, is_active)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE)`,
+    `INSERT INTO menu_items (code, name, description, category, price, price_medium, price_large, price_xlarge, image_url, is_active, is_bestseller)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, TRUE, $10)`,
     [
       payload.code,
       payload.name,
@@ -87,7 +93,8 @@ async function createMenuItem(payload) {
       payload.priceMedium ?? null,
       payload.priceLarge ?? null,
       payload.priceXlarge ?? null,
-      payload.imageUrl || null
+      payload.imageUrl || null,
+      Boolean(payload.isBestseller)
     ]
   );
   return getMenuItemById(insert.insertId);
@@ -98,8 +105,8 @@ async function updateMenuItem(id, payload) {
     `UPDATE menu_items
      SET code = $1, name = $2, description = $3, category = $4, price = $5,
          price_medium = $6, price_large = $7, price_xlarge = $8,
-         image_url = $9, is_active = $10
-     WHERE id = $11`,
+         image_url = $9, is_active = $10, is_bestseller = $11
+     WHERE id = $12`,
     [
       payload.code,
       payload.name,
@@ -111,6 +118,7 @@ async function updateMenuItem(id, payload) {
       payload.priceXlarge ?? null,
       payload.imageUrl || null,
       payload.isActive,
+      Boolean(payload.isBestseller),
       id
     ]
   );

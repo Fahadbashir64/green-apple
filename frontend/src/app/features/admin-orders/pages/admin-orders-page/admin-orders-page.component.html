@@ -88,7 +88,6 @@
             placeholder="X-large price (EUR)"
           />
         }
-        <input type="file" accept="image/*" (change)="onCreateImageSelected($event)" />
         <label class="active-toggle">
           <input
             type="checkbox"
@@ -96,6 +95,14 @@
             (ngModelChange)="patchCreateDraft({ isActive: $event })"
           />
           Active
+        </label>
+        <label class="active-toggle">
+          <input
+            type="checkbox"
+            [ngModel]="createDraft().isBestseller"
+            (ngModelChange)="patchCreateDraft({ isBestseller: $event })"
+          />
+          Bestseller (show in “Our bestsellers” on menu)
         </label>
         <textarea
           rows="4"
@@ -157,7 +164,7 @@
           <article class="item-row" [class.disabled]="!item.isActive">
             <div class="item-copy">
               <strong>{{ item.name }}</strong>
-              <span>{{ item.code }} • {{ item.category }} @if (!item.isActive) { • <em>disabled</em> }</span>
+              <span>{{ item.code }} • {{ item.category }} @if (item.isBestseller) { • <em class="bestseller-tag">bestseller</em> } @if (!item.isActive) { • <em>disabled</em> }</span>
               <small>{{ item.price | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</small>
             </div>
             <div class="item-actions">
@@ -255,7 +262,6 @@
             placeholder="X-large price (EUR)"
           />
         }
-        <input type="file" accept="image/*" (change)="onEditImageSelected($event)" />
         <label class="active-toggle">
           <input
             type="checkbox"
@@ -263,6 +269,14 @@
             (ngModelChange)="patchEditDraft({ isActive: $event })"
           />
           Active
+        </label>
+        <label class="active-toggle">
+          <input
+            type="checkbox"
+            [ngModel]="draft.isBestseller"
+            (ngModelChange)="patchEditDraft({ isBestseller: $event })"
+          />
+          Bestseller (show in “Our bestsellers” on menu)
         </label>
         <textarea
           rows="4"

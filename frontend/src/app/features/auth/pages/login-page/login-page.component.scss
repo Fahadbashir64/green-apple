@@ -45,8 +45,8 @@ input {
 
 input:focus {
   outline: 0;
-  border-color: rgba(212, 175, 55, 0.75);
-  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+  border-color: var(--ga-gold);
+  box-shadow: var(--ga-focus-ring);
 }
 
 button {
@@ -54,7 +54,7 @@ button {
   border-radius: 0.65rem;
   padding: 0.62rem 0.9rem;
   color: #fff;
-  background: linear-gradient(135deg, #c62828, #8e1f1f);
+  background: var(--ga-gradient-cta);
   font-weight: 700;
   cursor: pointer;
 }
@@ -65,7 +65,7 @@ button {
 }
 
 .switch-link a {
-  color: #c62828;
+  color: var(--ga-green-dark);
   text-decoration: none;
   font-weight: 700;
 }

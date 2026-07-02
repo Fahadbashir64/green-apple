@@ -1,0 +1,62 @@
+// Green Apple — primary = green + black blend
+:root {
+  --ga-green: #1f8a4d;
+  --ga-green-bright: #22a559;
+  --ga-green-dark: #157a3d;
+  --ga-green-darker: #0f5c2e;
+  --ga-black: #0a0c0b;
+  --ga-black-soft: #111413;
+  --ga-green-black: #142218;
+  --ga-green-black-mid: #1a2e24;
+  --ga-green-black-light: #243b2f;
+  --ga-gold: #d4af37;
+  --ga-gold-light: #e8c766;
+  --ga-gold-soft: #f5ecd4;
+  --ga-red: #c62828;
+  --ga-red-dark: #9b1c1c;
+  --ga-red-soft: #fde8e8;
+  --ga-dark: var(--ga-black-soft);
+  --ga-dark-elevated: var(--ga-green-black);
+  --ga-charcoal: var(--ga-green-black-mid);
+  --ga-surface: #ffffff;
+  --ga-surface-warm: #faf7f2;
+  --ga-surface-soft: #f3ede4;
+  --ga-border: #e8e0d4;
+  --ga-border-strong: #d4c9b8;
+  --ga-text: #1a1816;
+  --ga-text-muted: #5c554d;
+  --ga-text-light: #faf7f2;
+  /* Primary = green–black mix */
+  --ga-primary: var(--ga-green-black);
+  --ga-primary-soft: var(--ga-green-black-mid);
+  --ga-accent: var(--ga-gold);
+  --ga-accent-soft: var(--ga-gold-soft);
+  --ga-success: var(--ga-green);
+  --ga-danger: var(--ga-red);
+  --ga-card-bg: var(--ga-surface-warm);
+  --ga-image-fallback: var(--ga-green-black);
+  --ga-gradient-primary: linear-gradient(
+    135deg,
+    var(--ga-green) 0%,
+    var(--ga-green-black-mid) 52%,
+    var(--ga-black) 100%
+  );
+  --ga-gradient-header: linear-gradient(
+    180deg,
+    var(--ga-green-black-mid) 0%,
+    var(--ga-green-black) 42%,
+    var(--ga-black) 100%
+  );
+  --ga-gradient-cta: var(--ga-gradient-primary);
+  --ga-gradient-green: var(--ga-gradient-primary);
+  --ga-banner-overlay: linear-gradient(
+    180deg,
+    rgba(10, 12, 11, 0.22) 0%,
+    rgba(20, 34, 24, 0.38) 45%,
+    rgba(10, 12, 11, 0.32) 100%
+  );
+  --ga-shadow-soft: 0 14px 32px rgba(10, 12, 11, 0.14);
+  --ga-shadow-strong: 0 20px 42px rgba(10, 12, 11, 0.24);
+  --ga-focus-ring: 0 0 0 3px rgba(31, 138, 77, 0.28);
+  --ga-header-border: rgba(31, 138, 77, 0.35);
+}

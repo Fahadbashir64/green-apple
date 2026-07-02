@@ -1,0 +1,106 @@
+<div class="contact-popup-backdrop" (click)="close()"></div>
+<section class="contact-popup" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+  <header class="contact-popup__header">
+    <h2>{{ contact.name }}</h2>
+    <button type="button" class="contact-popup__close" (click)="close()" aria-label="Close">×</button>
+  </header>
+
+  <div class="contact-popup__scroll">
+    <div class="contact-popup__map-wrap">
+      <iframe
+        class="contact-popup__map"
+        [title]="'contactPopup.mapTitle' | translate"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        [src]="mapEmbedSrc"
+      ></iframe>
+      <a class="contact-popup__map-link" [href]="mapOpenUrl()" target="_blank" rel="noopener noreferrer">
+        {{ 'contactPopup.openInMaps' | translate }} ↗
+      </a>
+    </div>
+
+    <section class="contact-popup__card">
+      <h3>{{ 'contactPopup.impressum' | translate }}</h3>
+      <p>
+        <strong>{{ 'contactPopup.address' | translate }}:</strong><br />
+        {{ contact.street }}, {{ contact.city }}
+      </p>
+      <p>
+        <strong>{{ 'contactPopup.phone' | translate }}:</strong><br />
+        @for (phone of contact.phones; track phone) {
+          <span class="contact-popup__phone">{{ phone }}</span>
+        }
+      </p>
+      <p>
+        <strong>{{ 'contactPopup.email' | translate }}:</strong><br />
+        <a [href]="'mailto:' + contact.email">{{ contact.email }}</a>
+      </p>
+      <p class="contact-popup__muted">{{ 'contactPopup.operatorNote' | translate }}</p>
+    </section>
+
+    <section class="contact-popup__card">
+      <h3 class="contact-popup__section-label">{{ 'contactPopup.shopTimings' | translate }}</h3>
+      <div class="contact-popup__hours">
+        @for (weekday of openingHours.weekdayOrder; track weekday) {
+          <div class="contact-popup__hours-row">
+            <span>{{ dayLabel(weekday) }}</span>
+            <strong>{{ dayHours(weekday) }}</strong>
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="contact-popup__accordion">
+      <button type="button" class="contact-popup__accordion-toggle" (click)="showHolidayTimings = !showHolidayTimings">
+        <span>{{ 'contactPopup.holidayTimings' | translate }}</span>
+        <span class="contact-popup__chevron" [class.expanded]="showHolidayTimings">⌄</span>
+      </button>
+      @if (showHolidayTimings) {
+        <div class="contact-popup__accordion-body">
+          @for (entry of holidays; track entry.id) {
+            <div class="contact-popup__hours-row">
+              <span>{{ holidayLabel(entry) }}</span>
+              <strong>{{ entry.hours }}</strong>
+            </div>
+          }
+        </div>
+      }
+    </section>
+
+    <section class="contact-popup__card contact-popup__payments">
+      <h3 class="contact-popup__section-label">{{ 'contactPopup.paymentMethods' | translate }}</h3>
+      <div class="contact-popup__payment-icons">
+        <span class="contact-popup__payment-icon" title="Cash on delivery">💶</span>
+        @if (showPayPal) {
+          <span class="contact-popup__payment-icon contact-popup__payment-icon--paypal" title="PayPal">PayPal</span>
+        }
+      </div>
+    </section>
+
+    <section class="contact-popup__accordion">
+      <button type="button" class="contact-popup__accordion-toggle" (click)="showDisclaimer = !showDisclaimer">
+        <span>{{ 'contactPopup.disclaimer' | translate }}</span>
+        <span class="contact-popup__chevron" [class.expanded]="showDisclaimer">⌄</span>
+      </button>
+      @if (showDisclaimer) {
+        <div class="contact-popup__accordion-body contact-popup__disclaimer">
+          <p>{{ 'contactPopup.disclaimerIntro' | translate }}</p>
+          <h4>{{ 'contactPopup.disclaimerS1Title' | translate }}</h4>
+          <p>{{ 'contactPopup.disclaimerS1Text' | translate }}</p>
+          <h4>{{ 'contactPopup.disclaimerS2Title' | translate }}</h4>
+          <p>{{ 'contactPopup.disclaimerS2Text' | translate }}</p>
+          <h4>{{ 'contactPopup.disclaimerS3Title' | translate }}</h4>
+          <p>{{ 'contactPopup.disclaimerS3Text' | translate }}</p>
+          <h4>{{ 'contactPopup.disclaimerS4Title' | translate }}</h4>
+          <p>{{ 'contactPopup.disclaimerS4Text' | translate }}</p>
+          <h4>{{ 'contactPopup.disclaimerS5Title' | translate }}</h4>
+          <p>{{ 'contactPopup.disclaimerS5Text' | translate }}</p>
+          <h4>{{ 'contactPopup.disclaimerS6Title' | translate }}</h4>
+          <p>{{ 'contactPopup.disclaimerS6Text' | translate }}</p>
+          <h4>{{ 'contactPopup.disclaimerS7Title' | translate }}</h4>
+          <p>{{ 'contactPopup.disclaimerS7Text' | translate }}</p>
+        </div>
+      }
+    </section>
+  </div>
+</section>

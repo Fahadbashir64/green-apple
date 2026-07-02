@@ -11,6 +11,10 @@ export const environment = {
   payments: {
     showPayPal: false
   },
+  /** When false, closed-hours popup and order blocking are disabled. */
+  closedNotice: {
+    enabled: true
+  },
   qzTray: {
     enabled: false,
     printerName: '',

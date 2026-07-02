@@ -20,11 +20,13 @@ import { CustomerInfo, Order, PaymentMethod } from '../../../../core/models/orde
 import { AuthService } from '../../../../core/services/auth.service';
 import { CartService } from '../../../../core/services/cart.service';
 import { DeliveryAreasService } from '../../../../core/services/delivery-areas.service';
+import { OpeningHoursService } from '../../../../core/services/opening-hours.service';
 import { OrdersService } from '../../../../core/services/orders.service';
 import { PaypalService } from '../../../../core/services/paypal.service';
 import { QzTrayService } from '../../../../core/services/qz-tray.service';
 import { ToastService } from '../../../../core/services/toast.service';
-import { PRODUCT_IMAGE_PLACEHOLDER } from '../../../../core/utils/media-url';
+import { CartItem } from '../../../../core/models/cart-item.model';
+import { addonLabelsForLine } from '../../../../core/utils/menu-addons';
 import { environment } from '../../../../../environments/environment';
 import type { PayPalButtonsInstance } from '../../../../../types/paypal-checkout';
 
@@ -61,6 +63,7 @@ export class CheckoutPageComponent implements OnInit, AfterViewInit {
     private readonly paypalService: PaypalService,
     private readonly qzTrayService: QzTrayService,
     private readonly deliveryAreasService: DeliveryAreasService,
+    private readonly openingHours: OpeningHoursService,
     private readonly translateService: TranslateService,
     private readonly toastService: ToastService,
     private readonly router: Router
@@ -86,7 +89,11 @@ export class CheckoutPageComponent implements OnInit, AfterViewInit {
       .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => {
         const type = value as FulfillmentType;
-        this.cartService.setFulfillmentType(type);
+        if (type === 'pickup') {
+          this.cartService.confirmPickup();
+        } else {
+          this.cartService.setFulfillmentType('delivery');
+        }
         const addressControl = this.checkoutForm.get('address')!;
         addressControl.setValidators(this.addressValidators(type));
         addressControl.updateValueAndValidity();
@@ -120,6 +127,14 @@ export class CheckoutPageComponent implements OnInit, AfterViewInit {
           area: area.area,
           charge: area.charge
         });
+        if (this.checkoutForm.get('fulfillmentType')?.value === 'delivery') {
+          this.cartService.confirmDelivery({
+            id: area.id,
+            city: area.city,
+            area: area.area,
+            charge: area.charge
+          });
+        }
       });
 
     this.checkoutForm
@@ -239,6 +254,11 @@ export class CheckoutPageComponent implements OnInit, AfterViewInit {
   }
 
   private validateCheckout(): boolean {
+    if (!this.openingHours.canOrder()) {
+      this.openingHours.showNotice();
+      return false;
+    }
+
     if (!this.authService.isLoggedIn()) {
       this.toastService.error(this.translateService.instant('toast.loginRequired'));
       this.router.navigateByUrl('/login');
@@ -265,6 +285,10 @@ export class CheckoutPageComponent implements OnInit, AfterViewInit {
       return;
     }
     if (this.isPlacingOrder) {
+      return;
+    }
+    if (!this.openingHours.canOrder()) {
+      this.openingHours.showNotice();
       return;
     }
     if (this.checkoutForm.get('paymentMethod')?.value === 'paypal') {
@@ -436,11 +460,11 @@ export class CheckoutPageComponent implements OnInit, AfterViewInit {
     this.paypalButtonHost?.nativeElement.replaceChildren();
   }
 
-  useFallbackImage(event: Event): void {
-    const image = event.target as HTMLImageElement;
-    if (image.src.includes('placeholder-product.png')) {
-      return;
-    }
-    image.src = PRODUCT_IMAGE_PLACEHOLDER;
+  lineAddonLabels(line: CartItem): string[] {
+    return addonLabelsForLine(line.addons, this.menuLang());
+  }
+
+  private menuLang(): 'de' | 'en' {
+    return this.translateService.currentLang?.startsWith('en') ? 'en' : 'de';
   }
 }

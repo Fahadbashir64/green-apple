@@ -34,6 +34,21 @@
   margin: 0;
 }
 
+.line-addons,
+.line-note {
+  margin-top: 0.2rem;
+  font-size: 0.82rem;
+  color: #6a7480;
+}
+
+.line-addons {
+  color: var(--ga-green-dark, #1f5c2e);
+}
+
+.line-note {
+  font-style: italic;
+}
+
 .line-actions {
   display: flex;
   align-items: center;
@@ -100,11 +115,11 @@
 }
 
 .fulfillment-option input[type='radio'] {
-  accent-color: #c62828;
+  accent-color: var(--ga-green);
 }
 
 .fulfillment-option.active {
-  border-color: #c62828;
+  border-color: var(--ga-green);
   background: #fff5f5;
   box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.1);
 }
@@ -122,7 +137,7 @@
 }
 
 .cart-totals .total-line.grand {
-  color: #111827;
+  color: var(--ga-text);
   font-weight: 800;
   font-size: 1.05rem;
 }

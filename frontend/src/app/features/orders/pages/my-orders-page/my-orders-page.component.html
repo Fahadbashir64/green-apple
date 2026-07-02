@@ -6,7 +6,15 @@
     </p>
   </header>
 
-  @if (ordersService.orders().length === 0) {
+  @if (!authService.isLoggedIn()) {
+    <div class="guest-orders-prompt">
+      <p>{{ 'pages.myOrders.guestPrompt' | translate }}</p>
+      <div class="guest-orders-actions">
+        <a routerLink="/login" class="guest-orders-btn">{{ 'nav.login' | translate }}</a>
+        <a routerLink="/register" class="guest-orders-btn guest-orders-btn--outline">{{ 'nav.register' | translate }}</a>
+      </div>
+    </div>
+  } @else if (ordersService.orders().length === 0) {
     <p class="empty-state">{{ 'pages.myOrders.empty' | translate }}</p>
   } @else {
     <section class="orders-panel">

@@ -14,6 +14,10 @@ export const environment = {
   payments: {
     showPayPal: false
   },
+  /** When false, closed-hours popup and order blocking are disabled. */
+  closedNotice: {
+    enabled: true
+  },
   qzTray: {
     enabled: true,
     /** Exact Windows printer name (Settings → Printers). Avoid "Microsoft Print to PDF". */

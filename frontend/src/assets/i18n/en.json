@@ -1,16 +1,32 @@
 {
     "layout":  {
+                   "openMenu":  "Open menu",
+                   "closeMenu":  "Close menu",
                    "tagline":  "Fresh ingredients and great quality",
                    "searchPlaceholder":  "Search dishes...",
                    "footerNote":  "Green Apple Pizza Doner Burger",
                    "contact":  "Contact",
-                   "privacyPolicy":  "Privacy Policy",
-                   "termsAndConditions":  "Terms and Conditions"
+                   "language":  "Language",
+                   "legal":  "Legal",
+                   "guestMenu":  "Account menu",
+                   "termsOfUsage":  "Terms of Usage",
+                   "dataProtectionPolicy":  "Data Protection Policy"
                },
     "fulfillment":  {
                         "title":  "Order type",
+                        "selectOrderType":  "Please select your order type",
+                        "selectDeliveryArea":  "Please select your delivery area",
+                        "searchArea":  "Search Area",
+                        "done":  "Done",
                         "delivery":  "Delivery",
-                        "pickup":  "Pickup",
+                        "pickup":  "Pick up",
+                        "deliveryDiscount":  "Delivery -10%",
+                        "pickupDiscount":  "Pick up -15%",
+                        "deliveryDisclaimer":  "*For delivery orders, minimum order amount is required and delivery charges may apply on selected area.",
+                        "deliveryUnavailable":  "Delivery not available at this time",
+                        "changeArea":  "Change area",
+                        "minimumForArea":  "Minimum amount for {{area}}: {{amount}}",
+                        "amountMoreRequired":  "{{amount}} more required to place order",
                         "deliveryArea":  "Delivery area",
                         "deliveryAreaPlaceholder":  "Select a delivery area",
                         "deliveryAreaEmpty":  "No delivery areas are configured yet."
@@ -26,6 +42,7 @@
                 "logout":  "Logout"
             },
     "categories":  {
+                       "bestsellers":  "Our bestsellers",
                        "pizza":  "Pizza",
                        "calzone":  "Calzone",
                        "baguette":  "Baguette",
@@ -82,6 +99,7 @@
     "toast":  {
                   "addedToCart":  "{{item}} added to cart.",
                   "addedToCartQty":  "{{qty}}x {{item}} added to cart.",
+                  "addonRequired":  "Please select all required options.",
                   "removedFromCart":  "{{item}} removed from cart.",
                   "cartCleared":  "Cart has been cleared.",
                   "orderPlaced":  "Order placed successfully.",
@@ -92,17 +110,69 @@
                   "loginRequired":  "Please login to continue.",
                   "cartEmpty":  "Your cart is empty.",
                   "completeRequiredFields":  "Please complete all required fields.",
-                  "deliveryAreasLoadFailed":  "Could not load delivery areas."
+                  "deliveryAreasLoadFailed":  "Could not load delivery areas.",
+                  "orderingClosed":  "Ordering is not available right now."
               },
+    "closedNotice":  {
+                         "title":  "We are closed today",
+                         "message":  "Sorry, we are closed right now. You can view the menu, but placing an order is not possible at the moment.",
+                         "todayClosed":  "{{day}}: Closed.",
+                         "todayHours":  "{{day}}: {{hours}}",
+                         "viewOpeningTimes":  "View opening times",
+                         "ok":  "OK",
+                         "closed":  "Closed",
+                         "orderingDisabled":  "Ordering is not available right now.",
+                         "days":  {
+                                      "sunday":  "Sunday",
+                                      "monday":  "Monday",
+                                      "tuesday":  "Tuesday",
+                                      "wednesday":  "Wednesday",
+                                      "thursday":  "Thursday",
+                                      "friday":  "Friday",
+                                      "saturday":  "Saturday"
+                                  }
+                     },
+    "contactPopup":  {
+                         "mapTitle":  "Green Apple location",
+                         "openInMaps":  "Maps",
+                         "impressum":  "LEGAL NOTICE",
+                         "address":  "ADDRESS",
+                         "phone":  "Phone number",
+                         "email":  "Email",
+                         "operatorNote":  "The operator is responsible for all content in the web shop.",
+                         "shopTimings":  "SHOP TIMINGS",
+                         "holidayTimings":  "Holiday timings",
+                         "paymentMethods":  "PAYMENT METHODS",
+                         "disclaimer":  "Disclaimer",
+                         "disclaimerIntro":  "The following notices apply to the use of this website and our online shop.",
+                         "disclaimerS1Title":  "1. Information on the website",
+                         "disclaimerS1Text":  "The content on this website is provided for general information. We strive to keep all details current and accurate but do not guarantee completeness or correctness.",
+                         "disclaimerS2Title":  "2. Availability of the website",
+                         "disclaimerS2Text":  "We aim for high availability of the website. Short interruptions due to maintenance, technical issues, or force majeure may still occur.",
+                         "disclaimerS3Title":  "3. External links",
+                         "disclaimerS3Text":  "This website may contain links to third-party websites. We have no influence over their content and accept no liability for them.",
+                         "disclaimerS4Title":  "4. Disclaimer for orders and deliveries",
+                         "disclaimerS4Text":  "We strive to fulfil orders on time and with care. We are only liable for delays, errors, or damages related to orders in cases of intent or gross negligence.",
+                         "disclaimerS5Title":  "5. Disclaimer for allergies",
+                         "disclaimerS5Text":  "Although we provide ingredient information, cross-contamination with allergens such as nuts, dairy, or gluten may occur. Customers with allergies or intolerances should inform us before ordering.",
+                         "disclaimerS6Title":  "6. Disclaimer for damages",
+                         "disclaimerS6Text":  "The operator is not liable for direct, indirect, incidental, or consequential damages arising from the use of this website, to the extent permitted by law.",
+                         "disclaimerS7Title":  "7. Changes to the disclaimer",
+                         "disclaimerS7Text":  "We reserve the right to update this disclaimer at any time. Changes will be published on this website."
+                     },
     "labels":  {
                    "total":  "Total",
                    "status":  "Status",
                    "from":  "from",
                    "subtotal":  "Subtotal",
+                   "subtotalBeforeDiscount":  "Subtotal before discount",
+                   "discountPercent":  "Discount ({{percent}}%)",
+                   "saving":  "Saving {{amount}}",
                    "delivery":  "Delivery charges",
                    "grandTotal":  "Grand total"
                },
     "badges":  {
+                   "bestseller":  "Bestseller",
                    "new":  "New",
                    "popular":  "Popular",
                    "spicy":  "Spicy"
@@ -115,7 +185,8 @@
                   "xlarge":  "X-Large",
                   "required":  "Required",
                   "instructions":  "Instructions",
-                  "instructionsPlaceholder":  "Any special requests?"
+                  "instructionsPlaceholder":  "Any special requests?",
+                  "instructionsCalzone":  "Extra ingredient on request"
               },
     "forms":  {
                   "name":  "Name",
@@ -149,14 +220,19 @@
                   "menu":  {
                                "title":  "Menu",
                                "description":  "Select your favorite dishes and add them directly to your cart.",
+                               "bannerImageAlt":  "Green Apple — pizza, salads, and fresh dishes",
                                "emptyCategory":  "No items are available in this category right now.",
                                "emptyMenu":  "No menu items are available yet.",
+                               "categoryNav":  "Menu categories",
+                               "categoryNavMore":  "Show more categories",
                                "sliderPrev":  "Show previous products",
                                "sliderNext":  "Show more products",
                                "cardFallbackDescription":  "Delicious item prepared fresh.",
                                "sidebarTitle":  "Your cart",
                                "sidebarSubtitle":  "Adjust quantities instantly.",
-                               "emptyCart":  "No items in your cart yet."
+                               "emptyCart":  "No items in your cart yet.",
+                               "pizzaSizeCm":  "Ø {{cm}}cm",
+                               "itemInfo":  "Item details"
                            },
                   "cart":  {
                                "title":  "Cart",
@@ -184,20 +260,130 @@
                                       "description":  "Orders list, details, and status updates.",
                                       "empty":  "No orders yet."
                                   },
-                  "privacyPolicy":  {
-                                        "title":  "Privacy Policy",
-                                        "description":  "How we collect, use, and protect your information.",
-                                        "note":  "This is a UI placeholder. Legal copy will be finalized with backend integration and compliance review."
-                                    },
-                  "termsAndConditions":  {
-                                             "title":  "Terms and Conditions",
-                                             "description":  "Rules and conditions for using Green Apple services.",
-                                             "note":  "This is a UI placeholder. Final legal terms will be added before production launch."
-                                         },
+                  "termsOfUsage":  {
+                                       "title":  "Terms of Usage",
+                                       "companyName":  "Green Apple",
+                                       "companyStreet":  "Lübbeckerstr. 256,",
+                                       "companyCity":  "32479 Hille-Unterlübbe",
+                                       "companyEmail":  "E-mail: info@greensapples.de",
+                                       "s1":  {
+                                                    "title":  "1. Scope",
+                                                    "intro":  "These General Terms and Conditions (GTC) govern the contractual relationship between"
+                                                },
+                                       "s2":  {
+                                                    "title":  "2. Orders",
+                                                    "p1":  "2.1. By placing an order on our website, you submit a binding offer to purchase the selected products.",
+                                                    "p2":  "2.2. We reserve the right to reject or cancel orders if product availability cannot be guaranteed or for other reasons.",
+                                                    "p3":  "2.3. After placing your order, you will receive a confirmation by e-mail or SMS. This confirmation does not constitute acceptance of your offer but merely informs you that we have received your order."
+                                                },
+                                       "s3":  {
+                                                    "title":  "3. Delivery",
+                                                    "p1":  "3.1. We endeavour to deliver the ordered products to the address you provide within the stated delivery time.",
+                                                    "p2":  "3.2. Delivery times may vary depending on traffic, weather conditions and other factors. We ask for your understanding if delays occur.",
+                                                    "p3":  "3.3. For successful delivery, it is important that you provide the correct delivery address and contact details. We accept no liability for delivery problems caused by inaccurate or incomplete information."
+                                                },
+                                       "s4":  {
+                                                    "title":  "4. Prices and Payment",
+                                                    "p1":  "4.1. Prices shown on our website are in the local currency and include statutory VAT.",
+                                                    "p2":  "4.2. Payment is made either on delivery (cash or card) or online via payment methods we accept.",
+                                                    "p3":  "4.3. Additional costs may apply in the event of cancellation or modification of an order."
+                                                },
+                                       "s5":  {
+                                                    "title":  "5. Liability",
+                                                    "p1":  "5.1. We are liable for damages caused by intent or gross negligence on our part.",
+                                                    "p2":  "5.2. We accept no liability for damages arising from unforeseeable circumstances, force majeure or acts of third parties.",
+                                                    "p3":  "5.3. We accept no liability for damages resulting from incorrect or incomplete information provided by the customer."
+                                                },
+                                       "s6":  {
+                                                    "title":  "6. Data Protection",
+                                                    "p1":  "Personal data is collected and used in accordance with our privacy policy. We take appropriate measures to ensure the security of your data."
+                                                },
+                                       "s7":  {
+                                                    "title":  "7. Changes to the GTC",
+                                                    "p1":  "We reserve the right to change these GTC at any time. The amended GTC will be published on our website. By continuing to use our services after a change, you agree to the updated GTC."
+                                                },
+                                       "s8":  {
+                                                    "title":  "8. Severability Clause",
+                                                    "p1":  "If any provision of these GTC is invalid or unenforceable, the remaining provisions shall remain unaffected. The invalid or unenforceable provision shall be replaced by a valid provision that comes closest to the economic purpose of the invalid or unenforceable provision."
+                                                },
+                                       "note":  "Please note that this is only a general example of terms and conditions and your specific terms should be adapted accordingly. It is recommended to consult a lawyer or legal expert to ensure that your terms comply with applicable laws and regulations."
+                                   },
+                  "dataProtectionPolicy":  {
+                                                 "title":  "Data Protection Policy",
+                                                 "controllerTitle":  "Data controller:",
+                                                 "companyName":  "Green Apple",
+                                                 "companyStreet":  "Lübbeckerstr. 256,",
+                                                 "companyCity":  "32479 Hille-Unterlübbe",
+                                                 "companyEmail":  "E-mail: info@greensapples.de",
+                                                 "intro":  "Thank you for using our website. Protecting your personal data is important to us. In this privacy policy, we explain how we collect, use and protect your data.",
+                                                 "s1":  {
+                                                              "title":  "1. Data We Collect",
+                                                              "h1":  "1.1. Personal data:",
+                                                              "p1":  "We may collect personal data such as your name, delivery address, phone number and e-mail address when you place an order or contact us via the contact form.",
+                                                              "h2":  "1.2. Usage data:",
+                                                              "p2":  "We collect information about your interactions with our website, such as pages visited, clicks, preferences and settings.",
+                                                              "h3":  "1.3. Device data:",
+                                                              "p3":  "We collect information about the device you use to access our website, including IP address, browser type, operating system and device identifiers.",
+                                                              "h4":  "1.4. Payment information:",
+                                                              "p4":  "When you pay with Stripe or PayPal, we and Stripe or PayPal collect information about your payment method, such as your credit card number."
+                                                          },
+                                                 "s2":  {
+                                                              "title":  "2. How We Use Your Data",
+                                                              "h1":  "2.1. Orders and payments:",
+                                                              "p1":  "We use your data to process and deliver your order. We use Stripe and PayPal for payment processing.",
+                                                              "h2":  "2.2. Communication and customer service:",
+                                                              "p2":  "We use your contact details to send order confirmations, delivery notifications and updates. If you have subscribed to our newsletter, we may also send you information about special offers and new products.",
+                                                              "h3":  "2.3. Website improvement and marketing:",
+                                                              "p3":  "We analyse your data to improve our website and send you relevant offers if you have agreed to this."
+                                                          },
+                                                 "s3":  {
+                                                              "title":  "3. Data Storage and Protection",
+                                                              "h1":  "3.1. Data storage",
+                                                              "p1":  "We store your personal data only for as long as necessary for the purposes for which it was collected, unless a legal retention obligation applies.",
+                                                              "h2":  "3.2. Data security",
+                                                              "p2":  "We take appropriate technical and organisational measures to protect your personal data from loss, misuse and unauthorised access. We use SSL encryption to ensure the security of data transmission."
+                                                          },
+                                                 "s4":  {
+                                                              "title":  "4. Data Sharing and Third Parties",
+                                                              "h1":  "4.1. Third-party providers:",
+                                                              "p1":  "We may share your personal data with third-party providers who assist us with order processing, delivery, payment processing (e.g. Stripe and PayPal) or other services. These third parties are contractually obliged to use your data only for the specified purpose and to take appropriate security measures.",
+                                                              "h2":  "4.2. Legal requirements:",
+                                                              "p2":  "We may disclose your data where required by law.",
+                                                              "h3":  "4.3. Google Maps:",
+                                                              "p3":  "Our website uses Google Maps to display location information. By using Google Maps, you are subject to Google's terms of use and privacy policy. We have no influence over data processing by Google.",
+                                                              "h4":  "4.4. App Store and Play Store links:",
+                                                              "p4":  "Our website may provide links to app stores to allow you to download our mobile application. Please note that when using the App Store or Play Store, you agree to the terms and privacy policy of the respective operator.",
+                                                              "h5":  "4.5. Social media links:",
+                                                              "p5":  "Our website may contain links to social media platforms. Please note that these platforms have their own privacy policies for which we are not responsible. When you click these links, you leave our website and are subject to the privacy rules of the respective platform.",
+                                                              "h6":  "4.6. Cookies and tracking technologies:",
+                                                              "p6":  "We use cookies and similar technologies to track and improve your use of our website. Further information can be found in our cookie policy."
+                                                          },
+                                                 "s5":  {
+                                                              "title":  "5. Your Rights",
+                                                              "h1":  "5.1. Access to data:",
+                                                              "p1":  "You may request a copy of your personal data.",
+                                                              "h2":  "5.2. Rectification of data:",
+                                                              "p2":  "You may ask us to correct inaccurate or incomplete data.",
+                                                              "h3":  "5.3. Deletion of data:",
+                                                              "p3":  "You may request that we delete your data. In some cases, however, we must retain certain data.",
+                                                              "h4":  "5.4. Restriction of processing:",
+                                                              "p4":  "You may request restriction of the processing of your data.",
+                                                              "h5":  "5.5. Data portability:",
+                                                              "p5":  "You may request that we provide your data to you in a structured format.",
+                                                              "h6":  "5.6. Objection:",
+                                                              "p6":  "You may object to the processing of your data, in particular where it is used for direct marketing."
+                                                          },
+                                                 "s6":  {
+                                                              "title":  "6. Changes to This Privacy Policy",
+                                                              "p1":  "We may update this privacy policy from time to time to reflect changes in our data protection practices. We recommend checking regularly for updates.",
+                                                              "p2":  "If you have questions or concerns about your personal data or this privacy policy, you can contact us at any time."
+                                                          }
+                                             },
                   "myOrders":  {
                                    "title":  "My Orders",
                                    "description":  "Track your active and completed orders.",
                                    "empty":  "You do not have any orders yet.",
+                                   "guestPrompt":  "Please log in to view and track your orders.",
                                    "pendingTitle":  "Pending Orders",
                                    "pendingEmpty":  "No pending orders.",
                                    "preparingEmpty":  "No preparing orders.",
