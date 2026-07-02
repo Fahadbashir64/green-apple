@@ -24,6 +24,14 @@ async function run() {
   const sql = await fs.readFile(seedPath, "utf8");
   await pool.query(sql);
 
+  const { MENU_ITEM_ALLERGENS } = await import("../data/menu-allergens.js");
+  let allergenUpdates = 0;
+  for (const [code, allergens] of Object.entries(MENU_ITEM_ALLERGENS)) {
+    const value = allergens?.trim() || null;
+    const result = await pool.query("UPDATE menu_items SET allergens = $1 WHERE code = $2", [value, code]);
+    allergenUpdates += result.rowCount ?? 0;
+  }
+
   const { rows } = await pool.query(
     `SELECT COUNT(*) AS total
      FROM menu_items
@@ -33,6 +41,7 @@ async function run() {
         OR code LIKE 'nt-%' OR code LIKE 'sc-%' OR code LIKE 'dr-%'`
   );
   console.log(`Brochure menu loaded. Brochure-coded rows in menu_items: ${rows[0].total}`);
+  console.log(`Allergen codes applied to ${allergenUpdates} menu item(s).`);
 }
 
 run()

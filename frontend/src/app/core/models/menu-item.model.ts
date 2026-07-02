@@ -12,4 +12,7 @@ export interface MenuItem {
   priceXlarge?: number | null;
   badge?: 'new' | 'popular' | 'spicy';
   imageUrl?: string;
+  isBestseller?: boolean;
+  /** Comma-separated allergen/additive codes (flyer). */
+  allergens?: string | null;
 }

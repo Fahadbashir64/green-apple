@@ -12,6 +12,8 @@
     "db:init": "node scripts/init-db.js",
     "db:migrate:sub-admin": "node scripts/migrate-sub-admin-role.js",
     "db:migrate:menu-prices": "node scripts/migrate-menu-item-prices.js",
+    "db:migrate:bestseller": "node scripts/migrate-bestseller.js",
+    "db:migrate:allergens": "node scripts/migrate-allergens.js",
     "db:migrate:category-dates": "node scripts/migrate-category-created-at.js",
     "db:migrate:delivery-areas": "node scripts/migrate-delivery-areas.js",
     "db:migrate:clear-asset-images": "node scripts/migrate-clear-asset-image-urls.js",

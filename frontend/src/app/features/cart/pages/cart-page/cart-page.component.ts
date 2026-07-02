@@ -3,8 +3,11 @@ import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
+import { CartItem } from '../../../../core/models/cart-item.model';
 import { CartService } from '../../../../core/services/cart.service';
+import { OpeningHoursService } from '../../../../core/services/opening-hours.service';
 import { ToastService } from '../../../../core/services/toast.service';
+import { addonLabelsForLine } from '../../../../core/utils/menu-addons';
 
 @Component({
   selector: 'app-cart-page',
@@ -15,26 +18,36 @@ import { ToastService } from '../../../../core/services/toast.service';
 export class CartPageComponent {
   constructor(
     public readonly cartService: CartService,
+    private readonly openingHours: OpeningHoursService,
     private readonly toastService: ToastService,
     private readonly translateService: TranslateService
   ) {}
 
-  increment(itemId: string, sizeLabel?: 'small' | 'medium' | 'large' | 'xlarge'): void {
-    this.cartService.increment(itemId, sizeLabel);
+  incrementLine(line: CartItem): void {
+    this.cartService.incrementLine(line);
   }
 
-  decrement(itemId: string, sizeLabel?: 'small' | 'medium' | 'large' | 'xlarge'): void {
-    this.cartService.decrement(itemId, sizeLabel);
+  decrementLine(line: CartItem): void {
+    this.cartService.decrementLine(line);
   }
 
-  remove(itemId: string, sizeLabel?: 'small' | 'medium' | 'large' | 'xlarge'): void {
-    const line = this.cartService
-      .cartItems()
-      .find((entry) => entry.item.id === itemId && entry.sizeLabel === sizeLabel);
-    this.cartService.remove(itemId, sizeLabel);
-    if (line) {
-      this.toastService.info(this.translateService.instant('toast.removedFromCart', { item: line.item.name }));
+  removeLine(line: CartItem): void {
+    this.cartService.removeLine(line);
+    this.toastService.info(this.translateService.instant('toast.removedFromCart', { item: line.item.name }));
+  }
+
+  lineAddonLabels(line: CartItem): string[] {
+    return addonLabelsForLine(line.addons, this.menuLang());
+  }
+
+  private menuLang(): 'de' | 'en' {
+    return this.translateService.currentLang?.startsWith('en') ? 'en' : 'de';
+  }
+
+  goCheckout(event: Event): void {
+    if (!this.openingHours.canOrder()) {
+      event.preventDefault();
+      this.openingHours.showNotice();
     }
   }
-
 }

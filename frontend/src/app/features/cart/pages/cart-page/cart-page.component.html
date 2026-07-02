@@ -6,20 +6,26 @@
     <a routerLink="/menu" class="browse-link">{{ 'actions.exploreMenu' | translate }}</a>
   } @else {
     <div class="cart-lines">
-      @for (line of cartService.cartItems(); track line.item.id + '-' + (line.sizeLabel ?? 'base')) {
+      @for (line of cartService.cartItems(); track cartService.lineKey(line)) {
         <article class="line">
           <div>
             <h3>{{ line.item.name }}</h3>
             @if (line.sizeLabel) {
               <small>{{ line.sizeLabel }}</small>
             }
+            @if (lineAddonLabels(line).length) {
+              <p class="line-addons">{{ lineAddonLabels(line).join(' · ') }}</p>
+            }
+            @if (line.instructions) {
+              <p class="line-note">{{ line.instructions }}</p>
+            }
             <p>{{ cartService.lineUnitPrice(line) | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</p>
           </div>
           <div class="line-actions">
-            <button type="button" (click)="decrement(line.item.id, line.sizeLabel)">-</button>
+            <button type="button" (click)="decrementLine(line)">-</button>
             <span>{{ line.quantity }}</span>
-            <button type="button" (click)="increment(line.item.id, line.sizeLabel)">+</button>
-            <button type="button" class="danger" (click)="remove(line.item.id, line.sizeLabel)">{{ 'actions.remove' | translate }}</button>
+            <button type="button" (click)="incrementLine(line)">+</button>
+            <button type="button" class="danger" (click)="removeLine(line)">{{ 'actions.remove' | translate }}</button>
           </div>
         </article>
       }
@@ -32,7 +38,7 @@
           <strong>{{ cartService.totalPrice() | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
         </div>
       </div>
-      <a routerLink="/checkout">{{ 'actions.proceedCheckout' | translate }}</a>
+      <a routerLink="/checkout" (click)="goCheckout($event)">{{ 'actions.proceedCheckout' | translate }}</a>
     </footer>
   }
 </section>

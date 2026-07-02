@@ -1,7 +1,7 @@
 import { environment } from '../../../environments/environment';
 
-/** Default image for menu items without an uploaded photo. */
-export const PRODUCT_IMAGE_PLACEHOLDER = '/assets/images/placeholder-product.png';
+/** Site logo / favicon. */
+export const SITE_LOGO = '/assets/images/logo.png';
 
 /** Hero banner on the menu page. */
 export const MENU_MAIN_BANNER = '/assets/images/menu-main-banner.png';
@@ -13,7 +13,7 @@ export const MENU_MAIN_BANNER = '/assets/images/menu-main-banner.png';
 export function resolveMediaUrl(url: string | null | undefined): string {
   const raw = String(url ?? '').trim();
   if (!raw) {
-    return PRODUCT_IMAGE_PLACEHOLDER;
+    return '';
   }
   if (raw.startsWith('http://') || raw.startsWith('https://')) {
     return raw;

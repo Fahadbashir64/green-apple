@@ -20,8 +20,8 @@ interface AdminMenuItem {
   priceMedium?: number | null;
   priceLarge?: number | null;
   priceXlarge?: number | null;
-  imageUrl?: string;
   isActive: boolean;
+  isBestseller: boolean;
 }
 
 interface MenuItemDraft {
@@ -33,8 +33,8 @@ interface MenuItemDraft {
   priceMedium: number | null;
   priceLarge: number | null;
   priceXlarge: number | null;
-  imageUrl: string;
   isActive: boolean;
+  isBestseller: boolean;
 }
 
 function emptyDraft(category = ''): MenuItemDraft {
@@ -47,8 +47,8 @@ function emptyDraft(category = ''): MenuItemDraft {
     priceMedium: null,
     priceLarge: null,
     priceXlarge: null,
-    imageUrl: '',
-    isActive: true
+    isActive: true,
+    isBestseller: false
   };
 }
 
@@ -62,8 +62,8 @@ function draftFromItem(item: AdminMenuItem): MenuItemDraft {
     priceMedium: item.priceMedium ?? null,
     priceLarge: item.priceLarge ?? null,
     priceXlarge: item.priceXlarge ?? null,
-    imageUrl: item.imageUrl || '',
-    isActive: item.isActive
+    isActive: item.isActive,
+    isBestseller: item.isBestseller
   };
 }
 
@@ -145,9 +145,6 @@ export class AdminOrdersPageComponent implements OnInit {
   newCategory = '';
   minOrderPrice = 0;
   saving = false;
-  createImageFile: File | null = null;
-  editImageFile: File | null = null;
-
   constructor(
     private readonly menuService: MenuService,
     private readonly authService: AuthService,
@@ -189,8 +186,8 @@ export class AdminOrdersPageComponent implements OnInit {
             priceMedium: item.priceMedium != null ? Number(item.priceMedium) : null,
             priceLarge: item.priceLarge != null ? Number(item.priceLarge) : null,
             priceXlarge: item.priceXlarge != null ? Number(item.priceXlarge) : null,
-            imageUrl: item.imageUrl,
-            isActive: Boolean(item.isActive)
+            isActive: Boolean(item.isActive),
+            isBestseller: Boolean(item.isBestseller)
           }))
         );
       }
@@ -258,19 +255,16 @@ export class AdminOrdersPageComponent implements OnInit {
   private resetCreateDraft(): void {
     const category = this.categories()[0] || '';
     this.createDraft.set(emptyDraft(category));
-    this.createImageFile = null;
   }
 
   startEdit(item: AdminMenuItem): void {
     this.editingId.set(item.id);
     this.editDraft.set(draftFromItem(item));
-    this.editImageFile = null;
   }
 
   closeEditPopup(): void {
     this.editingId.set(null);
     this.editDraft.set(null);
-    this.editImageFile = null;
   }
 
   saveItem(): void {
@@ -314,7 +308,7 @@ export class AdminOrdersPageComponent implements OnInit {
             category: cat,
             price: Number(draft.price),
             ...pizzaPrices,
-            imageFile: this.createImageFile
+            isBestseller: draft.isBestseller
           })
         : this.menuService.updateMenuItem(editingId, {
             code: draft.code.trim(),
@@ -323,9 +317,8 @@ export class AdminOrdersPageComponent implements OnInit {
             category: cat,
             price: Number(draft.price),
             ...pizzaPrices,
-            imageUrl: draft.imageUrl?.trim() || '',
-            imageFile: this.editImageFile,
-            isActive: draft.isActive
+            isActive: draft.isActive,
+            isBestseller: draft.isBestseller
           });
 
     request$.subscribe({
@@ -357,8 +350,8 @@ export class AdminOrdersPageComponent implements OnInit {
         priceMedium: item.priceMedium ?? null,
         priceLarge: item.priceLarge ?? null,
         priceXlarge: item.priceXlarge ?? null,
-        imageUrl: item.imageUrl || '',
-        isActive: !item.isActive
+        isActive: !item.isActive,
+        isBestseller: item.isBestseller
       })
       .subscribe({
         next: () => {
@@ -414,16 +407,6 @@ export class AdminOrdersPageComponent implements OnInit {
   nextPage(): void {
     const total = this.totalPages();
     this.currentPage.set(Math.min(this.currentPage() + 1, total));
-  }
-
-  onCreateImageSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.createImageFile = input.files?.[0] || null;
-  }
-
-  onEditImageSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.editImageFile = input.files?.[0] || null;
   }
 
   saveMinOrderPrice(): void {

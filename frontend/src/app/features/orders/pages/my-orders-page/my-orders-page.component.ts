@@ -1,7 +1,7 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { Order, OrderStatus } from '../../../../core/models/order.model';
@@ -11,7 +11,7 @@ import { ToastService } from '../../../../core/services/toast.service';
 
 @Component({
   selector: 'app-my-orders-page',
-  imports: [TranslatePipe, CurrencyPipe, DatePipe, FormsModule],
+  imports: [TranslatePipe, CurrencyPipe, DatePipe, FormsModule, RouterLink],
   templateUrl: './my-orders-page.component.html',
   styleUrl: './my-orders-page.component.scss'
 })
@@ -21,7 +21,7 @@ export class MyOrdersPageComponent implements OnInit {
 
   constructor(
     public readonly ordersService: OrdersService,
-    private readonly authService: AuthService,
+    public readonly authService: AuthService,
     private readonly toastService: ToastService,
     private readonly translateService: TranslateService,
     private readonly router: Router
@@ -29,8 +29,6 @@ export class MyOrdersPageComponent implements OnInit {
 
   ngOnInit(): void {
     if (!this.authService.isLoggedIn()) {
-      this.toastService.error(this.translateService.instant('toast.loginRequired'));
-      this.router.navigateByUrl('/login');
       return;
     }
     this.ordersService.loadMyOrders().subscribe({

@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { catchError, map, Observable, of, tap } from 'rxjs';
 
 import { MenuCategory, MenuItem } from '../models/menu-item.model';
-import { resolveMediaUrl } from '../utils/media-url';
+import { allergensForMenuItem } from '../constants/menu-allergens';
 import { AuthService } from './auth.service';
 import { environment } from '../../../environments/environment';
 
@@ -49,9 +49,10 @@ export class MenuService {
   loadItems(): Observable<MenuItem[]> {
     return this.http.get<any[]>(`${API_BASE_URL}/menu-items`).pipe(
       map((items) =>
-        items.map((item) =>
-          this.toSafeItem({
-            id: item.code || item.id,
+        items.map((item) => {
+          const code = item.code || item.id;
+          return this.toSafeItem({
+            id: code,
             category: item.category,
             name: item.name,
             description: item.description,
@@ -59,9 +60,15 @@ export class MenuService {
             priceMedium: item.priceMedium,
             priceLarge: item.priceLarge,
             priceXlarge: item.priceXlarge,
-            imageUrl: item.imageUrl
-          } as MenuItem)
-        )
+            isBestseller: Boolean(item.isBestseller),
+            allergens: allergensForMenuItem({
+              code,
+              id: code,
+              name: item.name,
+              allergens: item.allergens
+            })
+          } as MenuItem);
+        })
       ),
       tap((items) => this.menuItemsSignal.set(items))
     );
@@ -74,6 +81,10 @@ export class MenuService {
   getItemsByCategory(category: MenuCategory): MenuItem[] {
     const key = String(category ?? '').trim().toLowerCase();
     return this.getItems().filter((item) => String(item.category ?? '').trim().toLowerCase() === key);
+  }
+
+  getBestsellerItems(): MenuItem[] {
+    return this.getItems().filter((item) => item.isBestseller);
   }
 
   /** Categories that exist on at least one item, in first-seen order (matches API order). */
@@ -134,12 +145,7 @@ export class MenuService {
         headers: this.authService.authHeaders()
       })
       .pipe(
-        map((items) =>
-          items.map((item) => ({
-            ...item,
-            imageUrl: resolveMediaUrl(item.imageUrl)
-          }))
-        )
+        map((items) => items)
       );
   }
 
@@ -172,7 +178,7 @@ export class MenuService {
     priceMedium?: number | null;
     priceLarge?: number | null;
     priceXlarge?: number | null;
-    imageFile?: File | null;
+    isBestseller?: boolean;
   }): Observable<void> {
     const formData = new FormData();
     formData.append('code', payload.code);
@@ -184,9 +190,7 @@ export class MenuService {
     formData.append('priceMedium', isPizza && payload.priceMedium != null ? String(payload.priceMedium) : '');
     formData.append('priceLarge', isPizza && payload.priceLarge != null ? String(payload.priceLarge) : '');
     formData.append('priceXlarge', isPizza && payload.priceXlarge != null ? String(payload.priceXlarge) : '');
-    if (payload.imageFile) {
-      formData.append('image', payload.imageFile);
-    }
+    formData.append('isBestseller', String(Boolean(payload.isBestseller)));
     return this.http
       .post(`${API_BASE_URL}/menu-items`, formData, {
         headers: this.authService.authHeaders()
@@ -205,9 +209,8 @@ export class MenuService {
       priceMedium?: number | null;
       priceLarge?: number | null;
       priceXlarge?: number | null;
-      imageUrl?: string;
-      imageFile?: File | null;
       isActive: boolean;
+      isBestseller?: boolean;
     }
   ): Observable<void> {
     const formData = new FormData();
@@ -221,12 +224,7 @@ export class MenuService {
     formData.append('priceLarge', isPizza && payload.priceLarge != null ? String(payload.priceLarge) : '');
     formData.append('priceXlarge', isPizza && payload.priceXlarge != null ? String(payload.priceXlarge) : '');
     formData.append('isActive', String(payload.isActive));
-    if (payload.imageUrl) {
-      formData.append('imageUrl', payload.imageUrl);
-    }
-    if (payload.imageFile) {
-      formData.append('image', payload.imageFile);
-    }
+    formData.append('isBestseller', String(Boolean(payload.isBestseller)));
     return this.http
       .patch(`${API_BASE_URL}/menu-items/${id}`, formData, {
         headers: this.authService.authHeaders()
@@ -276,7 +274,8 @@ export class MenuService {
       priceLarge: n(item.priceLarge),
       priceXlarge: n(item.priceXlarge),
       badge: item.badge,
-      imageUrl: resolveMediaUrl(item.imageUrl)
+      isBestseller: Boolean(item.isBestseller),
+      allergens: allergensForMenuItem({ code: item.id, id: item.id, name: item.name, allergens: item.allergens })
     };
   }
 }

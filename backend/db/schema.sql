@@ -26,6 +26,8 @@ CREATE TABLE IF NOT EXISTS menu_items (
   price_xlarge DECIMAL(10, 2),
   image_url TEXT,
   is_active TINYINT(1) NOT NULL DEFAULT 1,
+  is_bestseller TINYINT(1) NOT NULL DEFAULT 0,
+  allergens VARCHAR(120) NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 

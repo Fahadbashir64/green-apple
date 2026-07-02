@@ -106,21 +106,27 @@
           <p class="empty-cart">{{ 'pages.cart.empty' | translate }}</p>
         } @else {
           <div class="summary-list">
-            @for (line of cartService.cartItems(); track line.item.id + '-' + (line.sizeLabel ?? 'base')) {
+            @for (line of cartService.cartItems(); track cartService.lineKey(line)) {
               <article class="summary-item">
-                <img
-                  [src]="line.item.imageUrl"
-                  [alt]="line.item.name"
-                  (error)="useFallbackImage($event)"
-                />
                 <div>
-                  <strong>{{ line.item.name }}</strong>
+                  <strong>{{ line.quantity }}× {{ line.item.name }}</strong>
                   @if (line.sizeLabel) {
                     <p>{{ line.sizeLabel }}</p>
                   }
-                  <p>{{ line.quantity }}x {{ cartService.lineUnitPrice(line) | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</p>
+                  @if (lineAddonLabels(line).length) {
+                    <p class="line-addons">{{ lineAddonLabels(line).join(' · ') }}</p>
+                  }
+                  @if (line.instructions) {
+                    <p class="line-note">{{ line.instructions }}</p>
+                  }
                 </div>
-                <strong>{{ cartService.lineUnitPrice(line) * line.quantity | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
+                <div class="summary-item-prices">
+                  @if (cartService.hasFulfillmentDiscount()) {
+                    <s class="summary-price-was">{{ cartService.lineListTotal(line) | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</s>
+                    <span class="summary-discount-badge">-{{ cartService.discountPercent() }}%</span>
+                  }
+                  <strong>{{ cartService.lineDiscountedTotal(line) | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
+                </div>
               </article>
             }
           </div>
@@ -131,12 +137,20 @@
         <div class="checkout-totals">
           <div class="total-row">
             <span>{{ 'labels.subtotal' | translate }}</span>
-            <strong>{{ cartService.totalPrice() | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
+            <strong>{{ cartService.totalListPrice() | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
           </div>
-          <div class="total-row">
-            <span>{{ 'labels.delivery' | translate }}</span>
-            <strong>{{ cartService.deliveryFee() | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
-          </div>
+          @if (cartService.hasFulfillmentDiscount()) {
+            <div class="total-row total-row--discount">
+              <span>{{ 'labels.discountPercent' | translate : { percent: cartService.discountPercent() } }}</span>
+              <strong>-{{ cartService.discountAmount() | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
+            </div>
+          }
+          @if (checkoutForm.get('fulfillmentType')?.value === 'delivery') {
+            <div class="total-row">
+              <span>{{ 'labels.delivery' | translate }}</span>
+              <strong>+{{ cartService.deliveryFee() | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
+            </div>
+          }
           <div class="total-row grand">
             <span>{{ 'labels.grandTotal' | translate }}</span>
             <strong>{{ cartService.grandTotal() | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>

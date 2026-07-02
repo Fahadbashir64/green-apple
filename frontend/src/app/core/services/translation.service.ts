@@ -6,14 +6,15 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class TranslationService {
   private readonly supportedLanguages = ['de', 'en'];
+  private readonly storageKey = 'ga_lang';
 
   constructor(private readonly translate: TranslateService) {
     this.translate.addLangs(this.supportedLanguages);
     this.translate.setDefaultLang('de');
 
-    const browserLanguage = this.translate.getBrowserLang();
+    const saved = localStorage.getItem(this.storageKey);
     const initialLanguage =
-      browserLanguage && this.supportedLanguages.includes(browserLanguage) ? browserLanguage : 'de';
+      saved && this.supportedLanguages.includes(saved) ? saved : 'de';
 
     this.translate.use(initialLanguage);
   }
@@ -25,6 +26,7 @@ export class TranslationService {
   switchLanguage(language: string): void {
     if (this.supportedLanguages.includes(language)) {
       this.translate.use(language);
+      localStorage.setItem(this.storageKey, language);
     }
   }
 }

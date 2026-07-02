@@ -1,0 +1,38 @@
+<div class="closed-notice-backdrop" (click)="close()"></div>
+<section class="closed-notice" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+  <header class="closed-notice__header">
+    <h2>{{ 'closedNotice.title' | translate }}</h2>
+    <button type="button" class="closed-notice__close" (click)="close()" aria-label="Close">×</button>
+  </header>
+
+  <div class="closed-notice__body">
+    <div class="closed-notice__icon" aria-hidden="true">
+      <span class="closed-notice__clock">🕐</span>
+      <span class="closed-notice__alert">!</span>
+    </div>
+    <div class="closed-notice__copy">
+      <p>{{ 'closedNotice.message' | translate }}</p>
+      <p class="closed-notice__today"><strong>{{ todayStatusText() }}</strong></p>
+    </div>
+  </div>
+
+  <button type="button" class="closed-notice__toggle" (click)="toggleOpeningTimes()">
+    {{ 'closedNotice.viewOpeningTimes' | translate }}
+    <span class="closed-notice__chevron" [class.expanded]="showOpeningTimes">⌄</span>
+  </button>
+
+  @if (showOpeningTimes) {
+    <div class="closed-notice__hours">
+      @for (weekday of openingHours.weekdayOrder; track weekday) {
+        <div class="closed-notice__hours-row">
+          <span>{{ dayLabel(weekday) }}</span>
+          <strong>{{ dayHours(weekday) }}</strong>
+        </div>
+      }
+    </div>
+  }
+
+  <footer class="closed-notice__footer">
+    <button type="button" class="closed-notice__ok" (click)="close()">{{ 'closedNotice.ok' | translate }}</button>
+  </footer>
+</section>

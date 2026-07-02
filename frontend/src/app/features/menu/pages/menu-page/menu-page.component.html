@@ -1,26 +1,163 @@
-<section class="menu-page">
+<section class="menu-page" [class.menu-page--with-cart]="authService.canShopAsCustomer()">
+  <div class="menu-layout">
   <div class="menu-main">
     @if (isMenuLoading()) {
       <div class="menu-container-loader visible">
         <div class="menu-container-loader-ring"></div>
       </div>
     }
-    <div class="menu-main-banner">
-      <img [src]="mainBannerSrc" alt="" (error)="onBannerImageError($event)" />
-      <div class="menu-main-banner-overlay">
-        <h1>{{ 'pages.menu.title' | translate }}</h1>
-        <p>{{ 'pages.menu.description' | translate }}</p>
+    <div class="menu-hero-stack">
+      <div class="menu-main-banner">
+        <h1 class="menu-banner-sr-title">{{ 'pages.menu.title' | translate }}</h1>
+        <img
+          [src]="mainBannerSrc"
+          [attr.alt]="'pages.menu.bannerImageAlt' | translate"
+          width="1024"
+          height="337"
+          fetchpriority="high"
+          decoding="async"
+          (error)="onBannerImageError($event)"
+        />
       </div>
+
+      @if (navSections.length > 0) {
+        <nav class="category-nav" [attr.aria-label]="'pages.menu.categoryNav' | translate">
+          <div class="category-nav-track" #categoryNavTrack>
+            @for (section of navSections; track section.category) {
+              <button
+                type="button"
+                class="category-nav-item"
+                [class.active]="activeCategory() === section.category"
+                (click)="scrollToCategory(section.category)"
+              >
+                <span
+                  class="category-nav-star"
+                  [class.category-nav-star--hidden]="activeCategory() !== section.category"
+                  aria-hidden="true"
+                >✦</span>
+                {{ categoryLabel(section.category) }}
+              </button>
+            }
+          </div>
+          <button
+            type="button"
+            class="category-nav-more"
+            (click)="scrollCategoryNav(categoryNavTrack, 1)"
+            [attr.aria-label]="'pages.menu.categoryNavMore' | translate"
+          >
+            ›
+          </button>
+        </nav>
+      }
     </div>
 
     <div id="menu-list"></div>
-    @if (menuLoadSettled() && categorySections.length === 0) {
+    @if (menuLoadSettled() && displaySections.length === 0) {
       <p class="menu-empty-all">{{ 'pages.menu.emptyMenu' | translate }}</p>
     }
-    @for (section of categorySections; track section.category) {
-      <div class="category-block">
-        <h2 class="category-heading">{{ categoryLabel(section.category) }}</h2>
+    @for (section of displaySections; track section.category) {
+      <div
+        class="category-block"
+        [class.category-block--bestsellers]="isBestsellersSection(section.category)"
+        #categorySection
+        [id]="categorySectionId(section.category)"
+        [attr.data-category]="section.category"
+      >
+        <h2 class="category-heading" [class.category-heading--bestsellers]="isBestsellersSection(section.category)">
+          @if (!isBestsellersSection(section.category) && categoryBanner(section.category); as bannerSrc) {
+            <span class="category-heading-sr">{{ categoryLabel(section.category) }}</span>
+          } @else {
+            {{ categoryLabel(section.category) }}
+          }
+        </h2>
 
+        @if (!isBestsellersSection(section.category) && categoryBanner(section.category); as bannerSrc) {
+          <div class="category-banner">
+            <img
+              [src]="bannerSrc"
+              [attr.alt]="categoryLabel(section.category)"
+              width="1024"
+              height="400"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+        }
+
+        @if (isBestsellersSection(section.category)) {
+          <div class="bestsellers-panel">
+            <div class="bestsellers-grid">
+              @for (item of section.items; track item.id) {
+                <article class="bestseller-card">
+                  @if (bestsellerItemCode(item)) {
+                    <span class="bestseller-card__code">{{ bestsellerItemCode(item) }}</span>
+                  }
+
+                  <div class="bestseller-card__body" (click)="openBestsellerItem(item)">
+                    <h3 class="bestseller-card__title">
+                      {{ item.name || 'Item' }}
+                      @if (item.allergens) {
+                        <span class="menu-item-allergens">{{ item.allergens }}</span>
+                      }
+                    </h3>
+                    @if (item.description) {
+                      <p class="bestseller-card__desc">{{ item.description }}</p>
+                    }
+                  </div>
+
+                  @if (isPizza(item.category)) {
+                    <div class="bestseller-card__sizes">
+                      @for (opt of bestsellerSizesForItem(item); track opt.size) {
+                        @let list = bestsellerUnitPrice(item, opt.size);
+                        @let sale = bestsellerDiscountedPrice(list);
+                        <button
+                          type="button"
+                          class="bestseller-size-cell"
+                          (click)="openBestsellerItem(item, opt.size, $event)"
+                        >
+                          <span class="bestseller-size-label">
+                            {{ 'pages.menu.pizzaSizeCm' | translate: { cm: opt.cm } }}
+                          </span>
+                          <span class="bestseller-size-prices">
+                            @if (bestsellerShowDiscount() && sale < list) {
+                              <span class="bestseller-price-was">{{ list | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</span>
+                            }
+                            <strong class="bestseller-price-now">{{ sale | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
+                          </span>
+                        </button>
+                      }
+                    </div>
+                  } @else if (authService.canShopAsCustomer()) {
+                    @let list = bestsellerUnitPrice(item);
+                    @let sale = bestsellerDiscountedPrice(list);
+                    <button
+                      type="button"
+                      class="bestseller-card__cart"
+                      (click)="openBestsellerItem(item, undefined, $event)"
+                    >
+                      <span class="bestseller-card__cart-icon" aria-hidden="true">🛒</span>
+                      <span class="bestseller-card__cart-prices">
+                        @if (bestsellerShowDiscount() && sale < list) {
+                          <span class="bestseller-price-was">{{ list | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</span>
+                        }
+                        <strong class="bestseller-price-now">{{ sale | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
+                      </span>
+                    </button>
+                  } @else {
+                    @let list = bestsellerUnitPrice(item);
+                    @let sale = bestsellerDiscountedPrice(list);
+                    <p class="bestseller-card__guest-price">
+                      @if (bestsellerShowDiscount() && sale < list) {
+                        <span class="bestseller-price-was">{{ list | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</span>
+                      }
+                      <strong class="bestseller-price-now">{{ sale | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
+                    </p>
+                  }
+                </article>
+              }
+            </div>
+          </div>
+        } @else {
         <div class="category-slider">
           <button
             type="button"
@@ -40,15 +177,21 @@
               @for (item of section.items; track item.id) {
                 <article class="menu-card menu-card--slide" (click)="openProductPopup(item.id)">
                   <button type="button" class="wish-btn" aria-label="wishlist">♡</button>
-                  <img [src]="item.imageUrl" [alt]="item.name" loading="lazy" (error)="useFallbackImage($event)" />
                   <div class="menu-card-content">
                     @if (item.badge) {
                       <span class="badge">{{ ('badges.' + item.badge) | translate }}</span>
                     }
-                    <h3>{{ item.name || 'Item' }}</h3>
+                    <h3>
+                      {{ item.name || 'Item' }}
+                      @if (item.allergens) {
+                        <span class="menu-item-allergens">{{ item.allergens }}</span>
+                      }
+                    </h3>
                     <p>{{ item.description || ('pages.menu.cardFallbackDescription' | translate) }}</p>
-                  <strong>
-                    {{ 'labels.from' | translate }}
+                  <strong class="menu-card-price">
+                    @if (isPizza(item.category)) {
+                      <span class="menu-card-price-from">{{ 'labels.from' | translate }}</span>
+                    }
                     {{ cardPrice(item) | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}
                   </strong>
                     @if (authService.canShopAsCustomer()) {
@@ -70,21 +213,12 @@
             ›
           </button>
         </div>
+        }
       </div>
     }
   </div>
 
   @if (authService.canShopAsCustomer()) {
-    <button type="button" class="floating-cart-btn" (click)="openCart()">
-      {{ 'actions.openCart' | translate }} ({{ cartService.itemCount() }})
-    </button>
-  }
-
-  @if (authService.canShopAsCustomer()) {
-    @if (isCartOpen) {
-      <button type="button" class="cart-backdrop" aria-label="close cart" (click)="closeCart()"></button>
-    }
-
     <aside class="cart-sidebar" [class.open]="isCartOpen">
       <div class="sidebar-card">
         <div class="sidebar-header">
@@ -92,68 +226,142 @@
           @if (cartService.cartItems().length > 0) {
             <button type="button" class="clear-btn" (click)="clearCart()">{{ 'actions.clearCart' | translate }}</button>
           }
-          <button type="button" class="close-btn" (click)="closeCart()">×</button>
+          <button type="button" class="close-btn close-btn--mobile" (click)="closeCart()">×</button>
         </div>
 
         @if (cartService.cartItems().length === 0) {
           <p class="empty-cart">{{ 'pages.menu.emptyCart' | translate }}</p>
         } @else {
           <div class="cart-lines">
-              @for (line of cartService.cartItems(); track line.item.id + '-' + (line.sizeLabel ?? 'base')) {
+              @for (line of cartService.cartItems(); track cartService.lineKey(line)) {
               <article class="line">
                 <div class="line-top">
-                  <img [src]="line.item.imageUrl" [alt]="line.item.name" (error)="useFallbackImage($event)" />
                   <div class="line-copy">
-                    <strong>{{ line.item.name }}</strong>
+                    <strong>{{ line.quantity }}× {{ line.item.name }}</strong>
                     <p>{{ line.item.description }}</p>
                   </div>
-                  <button type="button" class="line-remove" (click)="remove(line.item.id, line.sizeLabel)">🗑</button>
+                  <div class="line-price-col">
+                    @if (cartService.hasFulfillmentDiscount()) {
+                      <s class="line-price-was">{{ cartService.lineListTotal(line) | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</s>
+                      <span class="line-discount-badge">-{{ cartService.discountPercent() }}%</span>
+                    }
+                    <strong class="line-price-now">{{ cartService.lineDiscountedTotal(line) | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
+                  </div>
                 </div>
                 @if (line.sizeLabel) {
                   <p class="line-size">{{ line.sizeLabel }}</p>
                 }
+                @if (lineAddonLabels(line).length) {
+                  <p class="line-addons">{{ lineAddonLabels(line).join(' · ') }}</p>
+                }
+                @if (line.instructions) {
+                  <p class="line-note">{{ line.instructions }}</p>
+                }
 
                 <div class="line-bottom">
                   <div class="qty-controls">
-                    <button type="button" (click)="decrement(line.item.id, line.sizeLabel)">-</button>
+                    <button type="button" (click)="decrementLine(line)">-</button>
                     <span>{{ line.quantity }}</span>
-                    <button type="button" (click)="increment(line.item.id, line.sizeLabel)">+</button>
+                    <button type="button" (click)="incrementLine(line)">+</button>
                   </div>
-                  <strong>{{ cartService.lineUnitPrice(line) * line.quantity | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
+                  <button type="button" class="line-remove" (click)="removeLine(line)">🗑</button>
                 </div>
               </article>
             }
           </div>
-
-          <div class="sidebar-footer">
-            <div class="total-row grand">
-              <span>{{ 'labels.subtotal' | translate }}</span>
-              <strong>{{ cartService.totalPrice() | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
-            </div>
-            <a routerLink="/checkout">{{ 'actions.goCheckout' | translate }}</a>
-          </div>
         }
+
+        <div class="sidebar-footer">
+          @if (cartService.cartItems().length > 0) {
+            <div class="total-row">
+              <span>{{ 'labels.subtotal' | translate }}</span>
+              <strong>{{ cartService.totalListPrice() | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
+            </div>
+            @if (cartService.hasFulfillmentDiscount()) {
+              <div class="total-row total-row--discount">
+                <span>{{ 'labels.discountPercent' | translate : { percent: cartService.discountPercent() } }}</span>
+                <strong>-{{ cartService.discountAmount() | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
+              </div>
+            }
+            @if (cartService.fulfillmentType() === 'delivery' && cartService.isFulfillmentComplete()) {
+              <div class="total-row">
+                <span>{{ 'labels.delivery' | translate }}</span>
+                <strong>+{{ cartService.deliveryFee() | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
+              </div>
+            }
+            <div class="total-row grand">
+              <span>{{ 'labels.grandTotal' | translate }}</span>
+              <strong>{{ cartService.grandTotal() | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</strong>
+            </div>
+          }
+
+          <div class="fulfillment-toggle" role="group" [attr.aria-label]="'fulfillment.title' | translate">
+            <button
+              type="button"
+              class="fulfillment-toggle__btn fulfillment-toggle__btn--delivery"
+              [class.active]="isDeliveryActive()"
+              (click)="selectSidebarDelivery()"
+            >
+              <span class="fulfillment-toggle__ribbon">-10%</span>
+              <span class="fulfillment-toggle__label">🚚 {{ 'fulfillment.delivery' | translate }}</span>
+            </button>
+            <button
+              type="button"
+              class="fulfillment-toggle__btn fulfillment-toggle__btn--pickup"
+              [class.active]="isPickupActive()"
+              (click)="selectSidebarPickup()"
+            >
+              <span class="fulfillment-toggle__ribbon">-15%</span>
+              <span class="fulfillment-toggle__label">🛍 {{ 'fulfillment.pickup' | translate }}</span>
+            </button>
+          </div>
+
+          @if (cartService.fulfillmentType() === 'delivery' && cartService.deliveryArea()) {
+            <button type="button" class="change-area-btn" (click)="openChangeAreaPopup()">
+              {{ 'fulfillment.changeArea' | translate }}
+            </button>
+          }
+
+          <a routerLink="/checkout" (click)="goCheckout($event)">{{ 'actions.goCheckout' | translate }}</a>
+        </div>
       </div>
     </aside>
+  }
+  </div>
+
+  @if (authService.canShopAsCustomer()) {
+    <button type="button" class="floating-cart-btn floating-cart-btn--mobile" (click)="openCart()">
+      {{ 'actions.openCart' | translate }} ({{ cartService.itemCount() }})
+    </button>
+  }
+
+  @if (authService.canShopAsCustomer()) {
+    @if (isCartOpen) {
+      <button type="button" class="cart-backdrop cart-backdrop--mobile" aria-label="close cart" (click)="closeCart()"></button>
+    }
   }
 
   @if (selectedItem && authService.canShopAsCustomer()) {
     <div class="product-popup-backdrop" (click)="closeProductPopup()"></div>
-    <section class="product-popup" (click)="$event.stopPropagation()">
-      <div class="popup-image">
-        <img [src]="selectedItem.imageUrl" [alt]="selectedItem.name" (error)="useFallbackImage($event)" />
-      </div>
+    <section class="product-popup" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+      <button type="button" class="popup-close popup-close--overlay" (click)="closeProductPopup()" aria-label="Close">×</button>
       <div class="popup-content">
-        <button type="button" class="popup-close" (click)="closeProductPopup()">×</button>
-        <h3 class="popup-title">{{ selectedItem.name }}</h3>
-        <strong class="popup-price">
-          @if (isPizza(selectedItem.category)) {
-            {{ popupLinePrice(selectedSize) | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}
-          } @else {
-            {{ selectedItem.price | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}
-          }
-        </strong>
-        <p class="popup-description">{{ selectedItem.description }}</p>
+        <header class="popup-header">
+          <h3 class="popup-title">
+            {{ selectedItem.name }}
+            @if (selectedItem.allergens) {
+              <span class="menu-item-allergens">{{ selectedItem.allergens }}</span>
+            }
+          </h3>
+          <strong class="popup-price">
+            @if (isPizza(selectedItem.category)) {
+              {{ popupLinePrice(selectedSize) | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}
+            } @else {
+              {{ selectedItem.price | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}
+            }
+          </strong>
+          <p class="popup-description">{{ selectedItem.description }}</p>
+        </header>
 
         <div class="popup-body">
           @if (isPizza(selectedItem.category)) {
@@ -184,9 +392,50 @@
             </div>
           }
 
+          @for (group of popupAddonGroups; track group.id) {
+            <div class="popup-block">
+              <h4>
+                {{ addonGroupLabel(group) }}
+                @if (group.required) {
+                  <span class="required-tag">{{ 'popup.required' | translate }}</span>
+                }
+              </h4>
+              <div class="addon-list">
+                @for (option of group.options; track option.id) {
+                  @if (group.type === 'single') {
+                    <label class="addon-row">
+                      <span class="addon-name">{{ addonOptionLabel(group, option.id) }}</span>
+                      @if (option.price) {
+                        <span class="addon-price">+{{ option.price | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</span>
+                      }
+                      <input
+                        type="radio"
+                        [name]="'addon-' + group.id"
+                        [checked]="isAddonSelected(group.id, option.id)"
+                        (change)="selectSingleAddon(group.id, option.id)"
+                      />
+                    </label>
+                  } @else {
+                    <label class="addon-row">
+                      <span class="addon-name">{{ addonOptionLabel(group, option.id) }}</span>
+                      @if (option.price) {
+                        <span class="addon-price">+{{ option.price | currency: 'EUR' : 'symbol' : '1.2-2' : 'de' }}</span>
+                      }
+                      <input
+                        type="checkbox"
+                        [checked]="isAddonSelected(group.id, option.id)"
+                        (change)="toggleMultiAddon(group.id, option.id)"
+                      />
+                    </label>
+                  }
+                }
+              </div>
+            </div>
+          }
+
           <div class="popup-block">
             <h4>{{ 'popup.instructions' | translate }}</h4>
-            <textarea rows="3" [(ngModel)]="popupInstructions" [placeholder]="'popup.instructionsPlaceholder' | translate"></textarea>
+            <textarea rows="3" [(ngModel)]="popupInstructions" [placeholder]="instructionsPlaceholder()"></textarea>
           </div>
         </div>
 
@@ -202,5 +451,14 @@
         </div>
       </div>
     </section>
+  }
+
+  @if (authService.canShopAsCustomer()) {
+    <app-fulfillment-choice-popup
+      [visible]="showFulfillmentPopup"
+      [areaOnly]="fulfillmentPopupAreaOnly"
+      (confirmed)="onFulfillmentConfirmed()"
+      (dismissed)="onFulfillmentDismissed()"
+    />
   }
 </section>

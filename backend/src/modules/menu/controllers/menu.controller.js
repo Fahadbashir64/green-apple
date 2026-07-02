@@ -58,8 +58,13 @@ async function removeMenuCategory(req, res) {
   return res.json(result);
 }
 
+function parseBool(value) {
+  return value === true || value === "true" || value === "1" || value === 1;
+}
+
 async function postMenuItem(req, res) {
-  const { code, name, description, category, price, imageUrl, priceMedium, priceLarge, priceXlarge } = req.body ?? {};
+  const { code, name, description, category, price, imageUrl, priceMedium, priceLarge, priceXlarge, isBestseller } =
+    req.body ?? {};
   const uploadedImageUrl = req.file ? `/uploads/${req.file.filename}` : null;
   if (!code || !name || !description || !category || Number(price) < 0) {
     return res.status(400).json({ message: "Invalid menu item payload" });
@@ -75,7 +80,8 @@ async function postMenuItem(req, res) {
     priceMedium: isPizza ? optionalPrice(priceMedium) : null,
     priceLarge: isPizza ? optionalPrice(priceLarge) : null,
     priceXlarge: isPizza ? optionalPrice(priceXlarge) : null,
-    imageUrl: uploadedImageUrl || (imageUrl ? String(imageUrl).trim() : null)
+    imageUrl: uploadedImageUrl || (imageUrl ? String(imageUrl).trim() : null),
+    isBestseller: parseBool(isBestseller)
   });
   return res.status(201).json(created);
 }
@@ -85,7 +91,7 @@ async function patchMenuItem(req, res) {
   if (!Number.isFinite(id)) {
     return res.status(400).json({ message: "Invalid item id" });
   }
-  const { code, name, description, category, price, imageUrl, isActive, priceMedium, priceLarge, priceXlarge } =
+  const { code, name, description, category, price, imageUrl, isActive, isBestseller, priceMedium, priceLarge, priceXlarge } =
     req.body ?? {};
   const uploadedImageUrl = req.file ? `/uploads/${req.file.filename}` : null;
   const cat = String(category || "").trim().toLowerCase();
@@ -100,7 +106,8 @@ async function patchMenuItem(req, res) {
     priceLarge: isPizza ? optionalPrice(priceLarge) : null,
     priceXlarge: isPizza ? optionalPrice(priceXlarge) : null,
     imageUrl: uploadedImageUrl || (imageUrl ? String(imageUrl).trim() : null),
-    isActive: Boolean(isActive)
+    isActive: parseBool(isActive),
+    isBestseller: parseBool(isBestseller)
   });
   if (!updated) {
     return res.status(404).json({ message: "Menu item not found" });

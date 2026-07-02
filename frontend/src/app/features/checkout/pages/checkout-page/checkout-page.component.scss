@@ -104,11 +104,11 @@ textarea:focus {
 }
 
 .payment-option input[type='radio'] {
-  accent-color: #c62828;
+  accent-color: var(--ga-green);
 }
 
 .payment-option.active {
-  border-color: #c62828;
+  border-color: var(--ga-green);
   background: #fff5f5;
   box-shadow: 0 0 0 3px rgba(198, 40, 40, 0.12);
 }
@@ -179,24 +179,45 @@ textarea:focus {
 
 .summary-item {
   display: grid;
-  grid-template-columns: 48px minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 0.6rem;
   align-items: center;
   border-bottom: 1px solid #e5eaf0;
   padding-bottom: 0.5rem;
 }
 
-.summary-item img {
-  width: 48px;
-  height: 48px;
-  border-radius: 0.45rem;
-  object-fit: cover;
-}
-
 .summary-item p {
   margin: 0.2rem 0 0;
   font-size: 0.84rem;
   color: #5d6a79;
+}
+
+.summary-item .line-addons {
+  color: var(--ga-green-dark, #1f5c2e);
+}
+
+.summary-item .line-note {
+  font-style: italic;
+}
+
+.summary-item-prices {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.1rem;
+  flex-shrink: 0;
+}
+
+.summary-price-was {
+  font-size: 0.78rem;
+  color: #9ca3af;
+}
+
+.summary-discount-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #15803d;
+  line-height: 1;
 }
 
 .summary-footer {
@@ -221,9 +242,17 @@ textarea:focus {
   font-size: 0.95rem;
 }
 
+.checkout-totals .total-row--discount {
+  color: #15803d;
+}
+
+.checkout-totals .total-row--discount strong {
+  color: #15803d;
+}
+
 .checkout-totals .total-row.grand {
   margin-top: 0.15rem;
-  color: #111827;
+  color: var(--ga-text);
   font-size: 1.05rem;
   font-weight: 800;
 }
@@ -237,7 +266,7 @@ button {
   border-radius: 0.65rem;
   padding: 0.55rem 0.9rem;
   color: #fff;
-  background: linear-gradient(135deg, #c62828, #8e1f1f);
+  background: var(--ga-gradient-cta);
   font-weight: 600;
   cursor: pointer;
 }

@@ -56,7 +56,6 @@ export const routes: Routes = [
       },
       {
         path: 'orders',
-        canActivate: [authGuard],
         loadComponent: () => import('./features/orders/pages/my-orders-page/my-orders-page.component').then((m) => m.MyOrdersPageComponent)
       },
       {
@@ -65,18 +64,28 @@ export const routes: Routes = [
         redirectTo: 'orders'
       },
       {
-        path: 'privacy-policy',
+        path: 'terms-of-usage',
         loadComponent: () =>
           import('./features/legal/pages/privacy-policy-page/privacy-policy-page.component').then(
             (m) => m.PrivacyPolicyPageComponent
           )
       },
       {
-        path: 'terms-and-conditions',
+        path: 'data-protection-policy',
         loadComponent: () =>
           import('./features/legal/pages/terms-and-conditions-page/terms-and-conditions-page.component').then(
             (m) => m.TermsAndConditionsPageComponent
           )
+      },
+      {
+        path: 'privacy-policy',
+        pathMatch: 'full',
+        redirectTo: 'data-protection-policy'
+      },
+      {
+        path: 'terms-and-conditions',
+        pathMatch: 'full',
+        redirectTo: 'data-protection-policy'
       }
     ]
   },

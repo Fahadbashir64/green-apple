@@ -2,22 +2,111 @@
   <header class="topbar">
     <div class="topbar-row">
       <div class="brand">
-        <a class="brand-title" [routerLink]="authService.isSubAdmin() ? '/orders' : '/menu'">Green Apple</a>
-        <small>{{ 'layout.tagline' | translate }}</small>
+        <a class="brand-link" [routerLink]="authService.isSubAdmin() ? '/orders' : '/menu'">
+          <img class="brand-logo" [src]="siteLogoSrc" alt="Green Apple" />
+        </a>
       </div>
 
-      <div class="actions">
+      <button
+        type="button"
+        class="mobile-menu-toggle"
+        [class.guest-toggle]="!authService.isLoggedIn()"
+        [class.open]="isMobileMenuOpen"
+        [attr.aria-expanded]="isMobileMenuOpen"
+        [attr.aria-label]="isMobileMenuOpen ? ('layout.closeMenu' | translate) : ('layout.openMenu' | translate)"
+        (click)="toggleMobileMenu($event)"
+      >
+        <span class="hamburger-icon" aria-hidden="true"></span>
+      </button>
+
+      @if (isMobileMenuOpen) {
+        <button
+          type="button"
+          class="mobile-menu-backdrop"
+          [class.guest-backdrop]="!authService.isLoggedIn()"
+          [attr.aria-label]="'layout.closeMenu' | translate"
+          (click)="closeMobileMenu()"
+        ></button>
+      }
+
+      @if (!authService.isLoggedIn()) {
+        <nav class="guest-header-nav" [attr.aria-label]="'layout.guestMenu' | translate">
+          <a class="guest-header-link" routerLink="/login" routerLinkActive="active" (click)="closeMobileMenu()">
+            {{ 'nav.login' | translate }}
+          </a>
+          <a class="guest-header-link" routerLink="/register" routerLinkActive="active" (click)="closeMobileMenu()">
+            {{ 'nav.register' | translate }}
+          </a>
+          <a class="guest-header-link" routerLink="/orders" routerLinkActive="active" (click)="closeMobileMenu()">
+            {{ 'nav.myOrders' | translate }}
+          </a>
+          <button type="button" class="guest-header-link guest-header-link--button" (click)="openContact()">
+            {{ 'layout.contact' | translate }}
+          </button>
+          <button
+            type="button"
+            class="guest-more-toggle"
+            [class.open]="isMobileMenuOpen"
+            [attr.aria-expanded]="isMobileMenuOpen"
+            [attr.aria-label]="isMobileMenuOpen ? ('layout.closeMenu' | translate) : ('layout.openMenu' | translate)"
+            (click)="toggleMobileMenu($event)"
+          >
+            <span class="hamburger-icon" aria-hidden="true"></span>
+          </button>
+        </nav>
+      }
+
+      <div
+        class="actions"
+        [class.open]="isMobileMenuOpen"
+        [class.actions--guest]="!authService.isLoggedIn()"
+        (click)="$event.stopPropagation()"
+      >
         @if (!authService.isLoggedIn()) {
-          <a class="action-link" routerLink="/login" routerLinkActive="active">{{ 'nav.login' | translate }}</a>
-          <a class="action-link" routerLink="/register" routerLinkActive="active">{{ 'nav.register' | translate }}</a>
-        }
+          <div class="guest-menu-primary">
+            <a class="dropdown-link" routerLink="/login" routerLinkActive="active" (click)="closeMobileMenu()">
+              {{ 'nav.login' | translate }}
+            </a>
+            <a class="dropdown-link" routerLink="/register" routerLinkActive="active" (click)="closeMobileMenu()">
+              {{ 'nav.register' | translate }}
+            </a>
+            <a class="dropdown-link" routerLink="/orders" routerLinkActive="active" (click)="closeMobileMenu()">
+              {{ 'nav.myOrders' | translate }}
+            </a>
+            <button type="button" class="dropdown-link" (click)="openContact()">
+              {{ 'layout.contact' | translate }}
+            </button>
+          </div>
+          <p class="dropdown-label">{{ 'layout.language' | translate }}</p>
+          <button
+            type="button"
+            class="dropdown-link lang-option"
+            [class.active]="translationService.currentLanguage === 'de'"
+            (click)="setLanguage('de')"
+          >
+            Deutsch (DE)
+          </button>
+          <button
+            type="button"
+            class="dropdown-link lang-option"
+            [class.active]="translationService.currentLanguage === 'en'"
+            (click)="setLanguage('en')"
+          >
+            English (EN)
+          </button>
+          <p class="dropdown-label">{{ 'layout.legal' | translate }}</p>
+          <a class="dropdown-link" routerLink="/terms-of-usage" routerLinkActive="active" (click)="closeMobileMenu()">
+            {{ 'layout.termsOfUsage' | translate }}
+          </a>
+          <a class="dropdown-link" routerLink="/data-protection-policy" routerLinkActive="active" (click)="closeMobileMenu()">
+            {{ 'layout.dataProtectionPolicy' | translate }}
+          </a>
+        } @else {
+          <div class="lang-switch">
+            <button type="button" [class.active]="translationService.currentLanguage === 'de'" (click)="setLanguage('de')">DE</button>
+            <button type="button" [class.active]="translationService.currentLanguage === 'en'" (click)="setLanguage('en')">EN</button>
+          </div>
 
-        <div class="lang-switch">
-          <button type="button" [class.active]="translationService.currentLanguage === 'de'" (click)="setLanguage('de')">DE</button>
-          <button type="button" [class.active]="translationService.currentLanguage === 'en'" (click)="setLanguage('en')">EN</button>
-        </div>
-
-        @if (authService.isLoggedIn()) {
           <div class="profile-menu" (click)="$event.stopPropagation()">
             <button type="button" class="profile-trigger" (click)="toggleProfileMenu()">
               <span class="profile-avatar">{{ profileDisplayName.charAt(0) }}</span>
@@ -26,13 +115,14 @@
               <div class="profile-dropdown">
                 <p class="profile-name">{{ profileDisplayName }}</p>
                 @if (authService.isAdmin()) {
-                  <a class="dropdown-link" routerLink="/admin/dashboard" (click)="closeProfileMenu()">Dashboard</a>
-                  <a class="dropdown-link" routerLink="/orders" (click)="closeProfileMenu()">Orders</a>
+                  <a class="dropdown-link" routerLink="/admin/dashboard" (click)="closeProfileMenu(); closeMobileMenu()">Dashboard</a>
+                  <a class="dropdown-link" routerLink="/orders" (click)="closeProfileMenu(); closeMobileMenu()">Orders</a>
                 } @else if (authService.isSubAdmin()) {
-                  <a class="dropdown-link" routerLink="/orders" (click)="closeProfileMenu()">Orders</a>
+                  <a class="dropdown-link" routerLink="/orders" (click)="closeProfileMenu(); closeMobileMenu()">Orders</a>
                 } @else {
-                  <a class="dropdown-link" routerLink="/orders" (click)="closeProfileMenu()">{{ 'nav.myOrders' | translate }}</a>
+                  <a class="dropdown-link" routerLink="/orders" (click)="closeProfileMenu(); closeMobileMenu()">{{ 'nav.myOrders' | translate }}</a>
                 }
+                <button type="button" class="dropdown-link" (click)="openContact()">{{ 'layout.contact' | translate }}</button>
                 <button type="button" class="dropdown-link logout" (click)="logout()">{{ 'nav.logout' | translate }}</button>
               </div>
             }
@@ -42,16 +132,24 @@
     </div>
   </header>
 
-  <main class="content-wrap">
+  <main class="content-wrap" [class.content-wrap--menu-cart]="isMenuCartLayout()">
     <router-outlet />
   </main>
 
   <footer class="footer">
     <p>{{ 'layout.footerNote' | translate }}</p>
     <div class="footer-links">
-      <a routerLink="/privacy-policy" routerLinkActive="active">{{ 'layout.privacyPolicy' | translate }}</a>
-      <a routerLink="/terms-and-conditions" routerLinkActive="active">{{ 'layout.termsAndConditions' | translate }}</a>
+      <a routerLink="/terms-of-usage" routerLinkActive="active">{{ 'layout.termsOfUsage' | translate }}</a>
+      <a routerLink="/data-protection-policy" routerLinkActive="active">{{ 'layout.dataProtectionPolicy' | translate }}</a>
     </div>
     <p>{{ 'layout.contact' | translate }}: 05171 58 777 88</p>
   </footer>
+
+  @if (showClosedNotice()) {
+    <app-closed-notice-popup />
+  }
+
+  @if (isContactOpen) {
+    <app-contact-popup (closed)="closeContact()" />
+  }
 </div>

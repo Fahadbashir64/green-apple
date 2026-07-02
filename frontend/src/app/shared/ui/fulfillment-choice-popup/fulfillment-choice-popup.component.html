@@ -1,0 +1,85 @@
+@if (visible) {
+  <div class="fulfillment-popup-backdrop" (click)="close()"></div>
+  <section class="fulfillment-popup" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+    <header class="fulfillment-popup__header">
+      <h2>
+        @if (areaOnly) {
+          {{ 'fulfillment.selectDeliveryArea' | translate }}
+        } @else {
+          {{ 'fulfillment.selectOrderType' | translate }}
+        }
+      </h2>
+      <button type="button" class="fulfillment-popup__done" (click)="confirm()" [disabled]="!canConfirm()">
+        {{ 'fulfillment.done' | translate }}
+      </button>
+    </header>
+
+    @if (!areaOnly) {
+      <div class="fulfillment-popup__types">
+        <button
+          type="button"
+          class="fulfillment-card"
+          [class.active]="draftType === 'delivery'"
+          (click)="selectType('delivery')"
+        >
+          <span class="fulfillment-card__icon fulfillment-card__icon--delivery" aria-hidden="true">🚚</span>
+          <strong>{{ 'fulfillment.deliveryDiscount' | translate }}</strong>
+        </button>
+        <button
+          type="button"
+          class="fulfillment-card"
+          [class.active]="draftType === 'pickup'"
+          (click)="selectType('pickup')"
+        >
+          <span class="fulfillment-card__icon fulfillment-card__icon--pickup" aria-hidden="true">🛍️</span>
+          <strong>{{ 'fulfillment.pickupDiscount' | translate }}</strong>
+        </button>
+      </div>
+      @if (draftType === 'delivery') {
+        <p class="fulfillment-popup__disclaimer">{{ 'fulfillment.deliveryDisclaimer' | translate }}</p>
+      }
+    }
+
+    @if (draftType === 'delivery' || areaOnly) {
+      <div class="fulfillment-popup__areas">
+        @if (!areaOnly) {
+          <h3>{{ 'fulfillment.selectDeliveryArea' | translate }}</h3>
+        }
+        <label class="fulfillment-popup__search">
+          <input type="search" [(ngModel)]="areaSearch" [placeholder]="'fulfillment.searchArea' | translate" />
+        </label>
+        <ul class="fulfillment-popup__area-list">
+          @for (area of filteredAreas(); track area.id) {
+            <li>
+              <button
+                type="button"
+                class="fulfillment-area-row"
+                [class.active]="draftAreaId === area.id"
+                [class.inactive]="!area.isActive"
+                [disabled]="!area.isActive"
+                (click)="selectArea(area)"
+              >
+                <span>{{ areaLabel(area) }}</span>
+                @if (!area.isActive) {
+                  <small>{{ 'fulfillment.deliveryUnavailable' | translate }}</small>
+                }
+              </button>
+            </li>
+          }
+        </ul>
+        @if (filteredAreas().length === 0) {
+          <p class="fulfillment-popup__empty">{{ 'fulfillment.deliveryAreaEmpty' | translate }}</p>
+        }
+      </div>
+    }
+
+    <footer class="fulfillment-popup__footer">
+      @if (draftType === 'delivery' && draftAreaId != null) {
+        <span class="fulfillment-popup__selected">{{ selectedAreaLabel() }}</span>
+      }
+      <button type="button" class="fulfillment-popup__done" (click)="confirm()" [disabled]="!canConfirm()">
+        {{ 'fulfillment.done' | translate }}
+      </button>
+    </footer>
+  </section>
+}

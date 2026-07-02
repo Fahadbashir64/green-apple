@@ -7,6 +7,7 @@ import { CartItem } from '../models/cart-item.model';
 import { FulfillmentType } from '../models/fulfillment.model';
 import { CustomerInfo, Order, OrderItemDetail, OrderStatus, PaymentMethod } from '../models/order.model';
 import { AuthService } from './auth.service';
+import { addonLabelsForLine } from '../utils/menu-addons';
 import { unitPriceForMenuItem } from '../utils/menu-pricing';
 import { environment } from '../../../environments/environment';
 
@@ -114,7 +115,7 @@ export class OrdersService {
       fulfillmentType,
       items: items.map((line) => ({
         ...(line.item.id && Number.isFinite(Number(line.item.id)) ? { menuItemId: Number(line.item.id) } : {}),
-        itemName: line.item.name,
+        itemName: this.formatOrderItemName(line),
         ...(line.sizeLabel ? { sizeLabel: line.sizeLabel } : {}),
         unitPrice: this.cartLineUnit(line),
         quantity: line.quantity
@@ -215,6 +216,19 @@ export class OrdersService {
       return line.unitPrice;
     }
     return unitPriceForMenuItem(line.item, line.sizeLabel);
+  }
+
+  private formatOrderItemName(line: CartItem): string {
+    const addonLabels = addonLabelsForLine(line.addons, 'de');
+    let name = line.item.name;
+    if (addonLabels.length) {
+      name += ` (${addonLabels.join(', ')})`;
+    }
+    const note = line.instructions?.trim();
+    if (note) {
+      name += ` — ${note}`;
+    }
+    return name;
   }
 
   private calculateDeliveryFee(items: CartItem[]): number {
